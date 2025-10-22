@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kennedy Lawrence | Portfolio</title>
+    <style>
+        /* --- Global Styles --- */
+        :root {
+            --primary-color: #0a2342; /* Dark Blue */
+            --secondary-color: #2ca58d; /* Teal Accent */
+            --light-gray: #f4f7f6;
+            --dark-text: #333;
+            --light-text: #ffffff;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        /* --- Typography --- */
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5em;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 5rem 0;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        nav .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            margin-left: 2rem;
+        }
+
+        nav ul li a {
+            color: var(--dark-text);
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* --- Hero Section --- */
+        #hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1e457c 100%);
+            color: var(--light-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-top: 80px; /* Offset for fixed nav */
+        }
+
+        #hero h1 {
+            color: var(--light-text);
+            margin-bottom: 0.25em;
+        }
+
+        #hero .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            margin: 0 0.5rem;
+        }
+        
+        .cta-button.secondary {
+            background-color: transparent;
+            border: 2px solid var(--light-text);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            background-color: #33b8a1;
+        }
+        
+        .cta-button.secondary:hover {
+             background-color: var(--light-text);
+             color: var(--primary-color);
+        }
+
+        /* --- About Section --- */
+        #about {
+            background-color: var(--light-text);
+        }
+        
+        .about-content {
+            display: flex;
+            gap: 3rem;
+            align-items: flex-start;
+        }
+        
+        .about-content .bio {
+            flex-basis: 65%;
+        }
+        
+        .about-content .info-card {
+            flex-basis: 35%;
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 5px solid var(--secondary-color);
+        }
+        
+        .info-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .info-card li {
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .info-card li strong {
+            color: var(--primary-color);
+        }
+
+        /* --- Projects Section ("Web Apps") --- */
+        #projects {
+            background-color: var(--light-gray);
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .project-card {
+            background: var(--light-text);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        
+        .project-card-image {
+            height: 200px;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light-text);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 1rem;
+            /* Placeholder: Replace with <img src="..."> */
+        }
+        
+        .project-card-content {
+            padding: 1.5rem;
+        }
+        
+        .project-card-content p {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .project-card a {
+            font-weight: 700;
+        }
+        
+        /* --- Skills Section --- */
+        #skills {
+             background-color: var(--light-text);
+        }
+
+        .skills-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .skills-category {
+            padding: 1.5rem;
+            background: var(--light-gray);
+            border-radius: 8px;
+        }
+        
+        .skills-category h3 {
+            margin-top: 0;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .skills-list li {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* --- Contact Section --- */
+        #contact {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            text-align: center;
+        }
+        
+        #contact h2 {
+            color: var(--light-text);
+            border-color: var(--secondary-color);
+        }
+        
+        #contact p {
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 1.5rem auto 2.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        #contact .cta-button {
+            background-color: var(--secondary-color);
+        }
+        
+        #contact .cta-button:hover {
+             background-color: #33b8a1;
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: #061a33;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .social-links a {
+            margin: 0 0.5rem;
+            color: var(--light-text);
+            font-size: 1.5rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container">
+            [cite_start]<a href="#hero" class="logo">Kennedy Lawrence</a> [cite: 2, 38]
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <div class="container">
+            [cite_start]<h1>Kennedy Lawrence</h1> [cite: 2, 38]
+            [cite_start]<p class="subtitle">Advertising, Public Relations, and Journalism Student</p> [cite: 5]
+            <div>
+                <a href="#projects" class="cta-button">View My Work</a>
+                [cite_start]<a href="https://kennedylawrenceportfolio.my.canva.site/" class="cta-button secondary" target="_blank">View Portfolio</a> [cite: 3, 39]
+            </div>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="bio">
+                    <h2>About Me</h2>
+                    <p>
+                        [cite_start]I am a dedicated and highly-motivated student at the <strong>University of Nebraska-Lincoln</strong> [cite: 4][cite_start], anticipating graduation in May 2026[cite: 6]. [cite_start]I am pursuing a major in Advertising/Public Relations and Journalism, complemented by a minor in Psychology [cite: 5][cite_start], and have maintained a 4.0 GPA[cite: 7].
+                    </p>
+                    <p>
+                        [cite_start]My experience includes roles as a Public Relations Intern at Fusion [cite: 9, 10][cite_start], where I wrote media pitches [cite: 11] [cite_start]and monitored media coverage [cite: 13][cite_start], and as a Marketing Director Intern for Geneologie [cite: 23, 24][cite_start], where I managed social media content and collaborated on merchandise design[cite: 25, 26]. [cite_start]I also have a strong background in editorial leadership as the Senior Opinion Editor for The Daily Nebraskan[cite: 20].
+                    </p>
+                    <p>
+                        [cite_start]I am passionate about public relations, internal communications [cite: 14][cite_start], and developing cohesive brand strategies[cite: 34].
+                    </p>
+                </div>
+                <div class="info-card">
+                    <h3>Quick Info</h3>
+                    <ul>
+                        [cite_start]<li><strong>School:</strong> University of Nebraska-Lincoln [cite: 4]</li>
+                        [cite_start]<li><strong>Major:</strong> Ad/PR & Journalism [cite: 5]</li>
+                        [cite_start]<li><strong>Minor:</strong> Psychology [cite: 5]</li>
+                        [cite_start]<li><strong>GPA:</strong> 4.0 [cite: 7]</li>
+                        [cite_start]<li><strong>Graduation:</strong> May 2026 [cite: 6]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <div class="container">
+            <h2>My Projects</h2>
+            <p>This is where you can host your "misc. web apps" and projects. Here are some examples based on your resume:</p>
+            
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-card-image">Friendship Home Campaign</div>
+                    <div class="project-card-content">
+                        <h3>Buoy Experience Lab</h3>
+                        [cite_start]<p>Developed a full public relations campaign for the Friendship Home, including a creative brief, strategic plan, and deliverables[cite: 50].</p>
+                        <a href="#">View Campaign (Add Link)</a>
+                    </div>
+                </div>
+                
+                <div class="project-card">
+                    <div class="project-card-image">Nebraska News Service</div>
+                    <div class="project-card-content">
+                        <h3>Journalism & Reporting</h3>
+                        [cite_start]<p>Wrote news and feature articles for the Nebraska News Service and Heartland Pulse, and promoted content via Instagram[cite: 49].</p>
+                        <a href="#">Read Articles (Add Link)</a>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-card-image">Social Media Management</div>
+                    <div class="project-card-content">
+                        <h3>Geneologie & Pi Beta Phi</h3>
+                        [cite_start]<p>Managed and created content for Instagram and TikTok to grow engagement, promote brand awareness, and strengthen community presence[cite: 26, 33].</p>
+                        <a href="#">See Content (Add Link)</a>
+                    </div>
+                </div>
+                
+                <div class="project-card">
+                    <div class="project-card-image">Future Web App</div>
+                    <div class="project-card-content">
+                        <h3>(Your App Title)</h3>
+                        <p>Add a description for one of your new web applications here.</p>
+                        <a href="#">Launch App (Add Link)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <div class="container">
+            <h2>Core Skills</h2>
+            <div class="skills-container">
+                <div class="skills-category">
+                    <h3>Writing & Editing</h3>
+                    <ul class="skills-list">
+                        [cite_start]<li>AP Stylebook [cite: 57]</li>
+                        [cite_start]<li>Copywriting [cite: 57]</li>
+                        [cite_start]<li>Editing [cite: 57]</li>
+                        [cite_start]<li>Blog Writing [cite: 57]</li>
+                        [cite_start]<li>Press Releases [cite: 11]</li>
+                    </ul>
+                </div>
+                <div class="skills-category">
+                    <h3>Strategy & Planning</h3>
+                    <ul class="skills-list">
+                        [cite_start]<li>Public Relations Campaigns [cite: 59]</li>
+                        [cite_start]<li>Internal Communications [cite: 58]</li>
+                        [cite_start]<li>Social Media Strategy [cite: 14]</li>
+                        [cite_start]<li>Event Planning [cite: 58]</li>
+                        [cite_start]<li>SEO [cite: 60]</li>
+                    </ul>
+                </div>
+                <div class="skills-category">
+                    <h3>Technical Skills</h3>
+                    <ul class="skills-list">
+                        [cite_start]<li>Adobe Creative Cloud [cite: 60]</li>
+                        [cite_start]<li>CapCut [cite: 60]</li>
+                        [cite_start]<li>Cision (Media Monitoring) [cite: 13, 60]</li>
+                        [cite_start]<li>Microsoft Office [cite: 60]</li>
+                        [cite_start]<li>R Studio [cite: 60]</li>
+                        [cite_start]<li>Social Media Platforms [cite: 60]</li>
+                    </ul>
+                </div>
+                <div class="skills-category">
+                    <h3>Professional</h3>
+                    <ul class="skills-list">
+                        [cite_start]<li>Leadership [cite: 61]</li>
+                        [cite_start]<li>Communication [cite: 61]</li>
+                        [cite_start]<li>Collaboration [cite: 61]</li>
+                        [cite_start]<li>Organization [cite: 61]</li>
+                        [cite_start]<li>Adaptability [cite: 61]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="contact">
+        <div class="container">
+            <h2>Get In Touch</h2>
+            <p>
+                I'm always looking for new opportunities to learn and contribute. Whether you have a question, a project proposal, or just want to connect, feel free to reach out.
+            </p>
+            [cite_start]<a href="mailto:kennedy.lawrence03@gmail.com" class="cta-button">Email Me</a> [cite: 3, 39]
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>Kennedy Lawrence &copy; 2025</p>
+        </div>
+    </footer>
+
+</body>
+</html>
