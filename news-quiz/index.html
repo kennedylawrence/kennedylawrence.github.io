@@ -6,11 +6,29 @@
     <title>Daily Nebraskan News Quiz</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Set base font -->
+    
+    <!-- Load Google Fonts (Bebas Neue for headlines, Source Sans Pro for body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Load Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Set base font and custom headline font -->
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            /* Use Source Sans Pro as the default body font */
+            font-family: 'Source Sans Pro', sans-serif;
         }
+        
+        /* Custom class for Bebas Neue headlines */
+        .font-headline {
+            font-family: 'Bebas Neue', sans-serif;
+            /* Add some letter spacing to make Bebas Neue more readable */
+            letter-spacing: 0.05em;
+        }
+
         /* Custom styles for feedback */
         .answer-btn.correct {
             background-color: #d1fae5; /* green-100 */
@@ -41,18 +59,20 @@
         
         <!-- Header -->
         <div class="text-center mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Daily Nebraskan</h1>
-            <p class="text-xl font-light text-red-700">Recent News Quiz</p>
+            <!-- Apply headline font to main title, increase size -->
+            <h1 class="font-headline text-5xl md:text-6xl font-bold text-gray-900">Daily Nebraskan</h1>
+            <!-- Apply headline font to subtitle -->
+            <p class="font-headline text-3xl font-light text-red-700">Recent News Quiz</p>
         </div>
 
         <!-- Quiz Area (shown during quiz) -->
         <div id="quiz-area">
             <div class="mb-6">
                 <!-- Progress Indicator -->
-                <div id="progress-text" class="text-sm font-medium text-red-700 mb-2 text-center">
+                <div id="progress-text" class="text-sm font-semibold text-red-700 mb-2 text-center uppercase">
                     Question 1 of 5
                 </div>
-                <!-- Question Text -->
+                <!-- Question Text (uses body font) -->
                 <h2 id="question-text" class="text-xl md:text-2xl font-semibold text-gray-900 text-center">
                     Loading question...
                 </h2>
@@ -69,19 +89,21 @@
             </div>
 
             <!-- Next Button (hidden by default) -->
-            <button id="next-btn" class="hidden w-full bg-red-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-800 transition-colors duration-200 mt-6">
+            <button id="next-btn" class="hidden w-full bg-red-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-800 transition-colors duration-200 mt-6 text-lg">
                 Next
             </button>
         </div>
 
         <!-- Results Area (hidden by default) -->
         <div id="results-area" class="hidden text-center">
-            <h2 class="text-2xl font-bold mb-4">Quiz Complete!</h2>
-            <p id="score-text" class="text-4xl font-bold text-red-700 mb-2">You scored 0 out of 5</p>
+            <!-- Apply headline font to results header -->
+            <h2 class="font-headline text-4xl font-bold mb-4">Quiz Complete!</h2>
+            <!-- Apply headline font to score -->
+            <p id="score-text" class="font-headline text-5xl font-bold text-red-700 mb-2">You scored 0 out of 5</p>
             <p id="score-message" class="text-lg text-gray-600 mb-8">
                 <!-- A message based on the score will appear here -->
             </p>
-            <button id="restart-btn" class="w-full bg-gray-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-900 transition-colors duration-200">
+            <button id="restart-btn" class="w-full bg-gray-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-900 transition-colors duration-200 text-lg">
                 Try Again
             </button>
         </div>
@@ -94,6 +116,7 @@
           "quizQuestions": [
             { "id": 1, "category": "UNL Budget Cuts Quiz", "questionType": "True/False", "questionText": "Faculty and staff organized a “Stop the Cuts” rally to be held during the UNL football game against Iowa.", "options": ["True", "False"], "answer": "False" },
             { "id": 2, "category": "UNL Budget Cuts Quiz", "questionType": "Multiple Choice", "questionText": "Chancellor Rodney Bennett’s proposed plan aims to cut how much from the budget?", "options": ["a) $7.7 million", "b) $75 million", "c) $14.3 million", "d) $27.5 million"], "answer": "d) $27.5 million" },
+            // ... (rest of the questions are unchanged) ...
             { "id": 3, "category": "UNL Budget Cuts Quiz", "questionType": "True/False", "questionText": "The “Stop the Cuts” rally and petition drive was scheduled to take place at the Nebraska Union Plaza.", "options": ["True", "False"], "answer": "True" },
             { "id": 4, "category": "UNL Budget Cuts Quiz", "questionType": "Multiple Choice", "questionText": "Which of the following programs was *not* listed among the six proposed for elimination?", "options": ["a) Landscape Architecture", "b) Statistics", "c) Entomology", "d) Earth and Atmospheric Sciences"], "answer": "c) Entomology" },
             { "id": 5, "category": "UNL Budget Cuts Quiz", "questionType": "True/False", "questionText": "According to Executive Vice Chancellor Mark Button, 635 students are currently enrolled in the programs proposed for elimination.", "options": ["True", "False"], "answer": "True" },
@@ -108,7 +131,7 @@
             { "id": 14, "category": "Campus Crime Quiz", "questionType": "True/False", "questionText": "Juveniles were investigated for throwing water bottles off the top of the 19th and Vine parking garage, causing damage to a car.", "options": ["True", "False"], "answer": "True" },
             { "id": 15, "category": "Campus Crime Quiz", "questionType": "True/False", "questionText": "A UNL student was arrested for repeatedly calling Varner Hall, the Office of the President, about the budget cuts.", "options": ["True", "False"], "answer": "False" },
             { "id": 16, "category": "Earth & Atmospheric Sciences Quiz", "questionType": "Multiple Choice", "questionText": "The proposed elimination of the Earth and Atmospheric Sciences department is estimated to save the university how much?", "options": ["a) $325,000", "b) $1.85 million", "c) $7.7 million", "d) $27.5 million"], "answer": "b) $1.85 million" },
-            { "id": 17, "category": "Earth & Atmospheric Sciences Quiz", "questionType": "True/False", "questionText": "University administration stated that the Earth and Atmospheric Sciences department was \"one of the lower-performing units\" based on UNL metric analysis.", "options": ["True", "False"], "answer": "True" },
+            { "id": 17, "category": "Earth & Atmospheric Sciences Quiz", "questionType": "True/False", "questionText": "University administration stated that THE Earth and Atmospheric Sciences department was \"one of the lower-performing units\" based on UNL metric analysis.", "options": ["True", "False"], "answer": "True" },
             { "id": 18, "category": "Earth & Atmospheric Sciences Quiz", "questionType": "Multiple Choice", "questionText": "Department chairperson Clint Rowe argued that a \"vital metric\" was *not* used in the decision, which was:", "options": ["a) Job placement statistics", "b) The Scholarly Research Index", "c) Graduate student enrollment", "d) State-aided graduate assistantship funding"], "answer": "a) Job placement statistics" },
             { "id": 19, "category": "Earth & Atmospheric Sciences Quiz", "questionType": "True/False", "questionText": "Professor Adam Houston raised concerns about a \"brain drain\" because UNL has the only accredited Atmospheric Science degree program in the state.", "options": ["True", "False"], "answer": "True" },
             { "id": 20, "category": "Earth & Atmospheric Sciences Quiz", "questionType": "Multiple Choice", "questionText": "According to the articles, UNL is the only university in Nebraska that offers the required programming for students to be eligible for employment with what organization?", "options": ["a) The U.S. Geological Survey", "b) The National Weather Service", "c) The Federal Emergency Management Agency (FEMA)", "d) The American Association of University Professors"], "answer": "b) The National Weather Service" }
@@ -117,6 +140,7 @@
 
         // --- 2. DOM ELEMENTS ---
         const quizArea = document.getElementById('quiz-area');
+        // ... (rest of DOM elements are unchanged) ...
         const resultsArea = document.getElementById('results-area');
         
         const progressText = document.getElementById('progress-text');
@@ -132,6 +156,7 @@
 
         // --- 3. QUIZ STATE ---
         let allQuestions = [];
+        // ... (rest of quiz state is unchanged) ...
         let quizQuestions = []; // The 5 random questions for this round
         let currentQuestionIndex = 0;
         let score = 0;
@@ -181,7 +206,8 @@
             question.options.forEach(option => {
                 const button = document.createElement('button');
                 button.textContent = option;
-                button.className = 'answer-btn block w-full text-left p-4 mb-3 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-150';
+                // Use new body font, slightly heavier on hover
+                button.className = 'answer-btn block w-full text-left p-4 mb-3 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 hover:font-semibold focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-150';
                 
                 // Add click event listener to check the answer
                 button.addEventListener('click', () => selectAnswer(option, question.answer, button));
@@ -261,6 +287,32 @@
                 message = "Not bad! Keep reading the Daily Nebraskan to stay up-to-date.";
             }
             scoreMessage.textContent = message;
+
+            // --- Fire Confetti ---
+            // Check if the confetti function exists (in case CDN fails)
+            if (typeof confetti === 'function') {
+                // A little burst from the center
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+                
+                // And some from the sides
+                confetti({
+                    particleCount: 50,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 }
+                });
+                confetti({
+                    particleCount: 50,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 }
+                });
+            }
+            // --- End Confetti ---
         }
 
         // --- 5. UTILITY FUNCTIONS ---
@@ -292,3 +344,5 @@
     </script>
 </body>
 </html>
+
+
