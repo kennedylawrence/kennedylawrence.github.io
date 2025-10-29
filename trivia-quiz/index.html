@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Nebraskan Trivia Spin</title>
+    <!-- We'll use Tailwind CSS for easy and responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the game */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Style for the wheel pointer */
+        .wheel-pointer {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #dc2626; /* Red-600 */
+            position: absolute;
+            top: -10px; /* Position it just above the center */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            transition: transform 0.3s ease-out;
+        }
+
+        /* Canvas for the wheel */
+        canvas {
+            transition: transform 6s cubic-bezier(0.25, 0.1, 0.25, 1);
+            display: block;
+        }
+
+        /* Modal overlay */
+        #questionModal {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+
+        /* Custom button shadow for a 'bubbly' feel */
+        .btn-spin {
+            box-shadow: 0 5px 0 #059669; /* Emerald-700 */
+            transition: all 0.1s ease-in-out;
+        }
+
+        .btn-spin:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #059669;
+        }
+        
+        .btn-answer {
+            transition: all 0.2s ease;
+        }
+        
+        .btn-answer:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Classes to be added by JS */
+        .correct {
+            background-color: #10b981 !important; /* Emerald-500 */
+            color: white !important;
+            border-color: #059669 !important;
+        }
+
+        .incorrect {
+            background-color: #ef4444 !important; /* Red-500 */
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+        
+        .disabled {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-lg mx-auto text-center">
+        
+        <header class="mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-red-700">Daily Nebraskan</h1>
+            <h2 class="text-2xl md:text-3xl font-semibold text-gray-700">Trivia Spin</h2>
+        </header>
+
+        <!-- Wheel Container -->
+        <div class="relative w-80 h-80 md:w-96 md:h-96 mx-auto mb-8">
+            <div class="wheel-pointer"></div>
+            <canvas id="triviaWheel" width="400" height="400"></canvas>
+            <!-- Center pin -->
+            <div class="absolute top-1/2 left-1/2 w-10 h-10 bg-white rounded-full border-4 border-gray-700 transform -translate-x-1/2 -translate-y-1/2"></div>
+        </div>
+
+        <!-- Spin Button -->
+        <button id="spinButton" class="btn-spin bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-2xl py-4 px-12 rounded-full shadow-lg focus:outline-none">
+            SPIN
+        </button>
+    </div>
+
+    <!-- Question Modal -->
+    <div id="questionModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 opacity-0 invisible z-20">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 md:p-8 transform scale-95 transition-transform duration-300" id="modalContent">
+            
+            <!-- Category Title -->
+            <h3 id="categoryTitle" class="text-2xl md:text-3xl font-bold text-center mb-4">
+                Category
+            </h3>
+
+            <!-- Question -->
+            <p id="questionText" class="text-lg md:text-xl text-gray-700 mb-6 min-h-[50px]">
+                Loading question...
+            </p>
+
+            <!-- Answers -->
+            <div id="answerButtons" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Answer buttons will be generated here -->
+            </div>
+
+            <!-- Feedback -->
+            <div id="feedback" class="text-center text-xl font-semibold mt-6 min-h-[30px]">
+                <!-- Feedback (Correct/Incorrect) shows here -->
+            </div>
+
+            <!-- Next Button -->
+            <div class="text-center mt-6">
+                <button id="nextButton" class="hidden bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-8 rounded-lg shadow-md transition-all">
+                    Spin Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. TRIVIA DATA ---
+        // Questions based on the provided document
+        const triviaData = {
+            "Sports": [
+                {
+                    question: "Which two teams are the main contenders for the Big Ten Volleyball Championship mentioned in the article?",
+                    answers: ["Nebraska and Wisconsin", "Nebraska and Penn State", "Wisconsin and Purdue", "Nebraska and Minnesota"],
+                    correct: 0 // Index of the correct answer
+                },
+                {
+                    question: "Against which team did volleyball player Adriano have a career-high hitting percentage of .667?",
+                    answers: ["Michigan", "Wisconsin", "Michigan State", "Creighton"],
+                    correct: 2
+                },
+                {
+                    question: "What running back is noted as the 'Big Ten's rushing leader' in the football game against Northwestern?",
+                    answers: ["Dylan Raiola", "Emmett Johnson", "Isaiah Mozee", "Anthony Grant"],
+                    correct: 1
+                }
+            ],
+            "Culture": [
+                {
+                    question: "What was the name of Spectrum UNL's drag show event?",
+                    answers: ["Night of the Living Drag Show", "Husker Drag Ball", "Centennial Room Stars", "Protect The Dolls"],
+                    correct: 0
+                },
+                {
+                    question: "Which Halloween costume does the author of the column specifically *not* want to see?",
+                    answers: ["Carmy from 'The Bear'", "Labubus", "Chappell Roan", "Priscilla Presley"],
+                    correct: 1
+                },
+                {
+                    question: "What is the name of Olivia Dean's sophomore album reviewed in the article?",
+                    answers: ["'Messy'", "'So Easy (To Fall In Love)'", "'The Art of Loving'", "'Man I Need'"],
+                    correct: 2
+                }
+            ],
+            "News": [
+                {
+                    question: "Where did the laundry fire at a UNL residence hall take place?",
+                    answers: ["The Courtyards, third floor", "Abel Hall, first floor", "Sandoz Hall, basement", "The Village, second floor"],
+                    correct: 0
+                },
+                {
+                    question: "What group is challenging Chancellor Bennett's proposed $27.5 million budget cut?",
+                    answers: ["The Board of Regents", "UNL's chapter of the American Association of University Professors (AAUP)", "The Nebraska Legislature", "The College of Journalism"],
+                    correct: 1
+                },
+                {
+                    question: "The UNL College of Journalism and Mass Communications proposed merging which two majors?",
+                    answers: ["Journalism and Broadcasting", "Advertising and Public Relations", "Sports Media and Journalism", "Broadcasting and Advertising"],
+                    correct: 0
+                }
+            ],
+            "Opinion": [
+                {
+                    question: "The author argues Gen Z is weird about age, partly due to a perceived cultural shift towards what?",
+                    answers: ["More progressive ideals", "Hustle culture", "More conservative and traditional ideals", "A 'Peter Pan syndrome'"],
+                    correct: 2
+                },
+                {
+                    question: "What is the main argument of the opinion piece 'Student teachers should be paid for their labor'?",
+                    answers: ["Student teaching experience is payment enough.", "Student teachers are working full-time jobs and should be compensated.", "Student teachers should receive more college credit.", "Student teaching should be replaced with internships."],
+                    correct: 1
+                },
+                {
+                    question: "What was the nickname of the McCook ICE detention center discussed in the ASUN resolution?",
+                    answers: ["'The Cornhusker Clink'", "'The Husker Lockup'", "'McCook Detention'", "'Nebraska ICE'"],
+                    correct: 0
+                }
+            ]
+        };
+
+        // --- 2. WHEEL CONFIGURATION ---
+        const categories = [
+            { name: "Sports", color: "#dc2626" },   // Red-600
+            { name: "Culture", color: "#059669" },  // Emerald-600
+            { name:t: "News", color: "#2563eb" },     // Blue-600
+            { name: "Opinion", color: "#d97706" }   // Amber-600
+        ];
+        
+        // Repeat categories to fill the wheel
+        const wheelSegments = [...categories, ...categories]; 
+        const segmentAngle = (2 * Math.PI) / wheelSegments.length;
+        const canvas = document.getElementById('triviaWheel');
+        const ctx = canvas.getContext('2d');
+        const radius = canvas.width / 2;
+        let currentRotation = 0;
+        let isSpinning = false;
+
+        // --- 3. DOM ELEMENTS ---
+        const spinButton = document.getElementById('spinButton');
+        const modal = document.getElementById('questionModal');
+        const modalContent = document.getElementById('modalContent');
+        const categoryTitle = document.getElementById('categoryTitle');
+        const questionText = document.getElementById('questionText');
+        const answerButtonsContainer = document.getElementById('answerButtons');
+        const feedback = document.getElementById('feedback');
+        const nextButton = document.getElementById('nextButton');
+
+        // --- 4. WHEEL FUNCTIONS ---
+
+        /**
+         * Draws a single segment of the wheel
+         */
+        function drawSegment(index) {
+            const segment = wheelSegments[index];
+            const startAngle = index * segmentAngle;
+            const endAngle = (index + 1) * segmentAngle;
+
+            ctx.beginPath();
+            ctx.moveTo(radius, radius);
+            ctx.arc(radius, radius, radius - 10, startAngle, endAngle);
+            ctx.closePath();
+            
+            ctx.fillStyle = segment.color;
+            ctx.fill();
+            
+            ctx.save();
+            
+            // Draw text
+            ctx.translate(radius, radius);
+            ctx.rotate(startAngle + segmentAngle / 2);
+            ctx.textAlign = "right";
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 18px 'Inter', sans-serif";
+            ctx.fillText(segment.name, radius - 25, 10);
+            
+            ctx.restore();
+        }
+
+        /**
+         * Draws the entire wheel
+         */
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            wheelSegments.forEach((_, index) => drawSegment(index));
+        }
+
+        /**
+         * Spins the wheel
+         */
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinButton.disabled = true;
+            spinButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // Calculate random spin
+            // Add multiple rotations (e.g., 5 * 360 degrees)
+            const randomExtraSpins = Math.floor(Math.random() * 4) + 4; // 4 to 7 full spins
+            const randomStopAngle = Math.random() * 2 * Math.PI; // Random final position
+            const totalRotation = (randomExtraSpins * 2 * Math.PI) + randomStopAngle;
+
+            // Apply rotation to canvas
+            canvas.style.transform = `rotate(${totalRotation}rad)`;
+            
+            // Wait for animation to end
+            setTimeout(() => {
+                // Normalize the rotation
+                const finalRotation = totalRotation % (2 * Math.PI);
+                canvas.style.transition = 'none'; // Disable transition for reset
+                canvas.style.transform = `rotate(${finalRotation}rad)`; // Set to final position
+                
+                // Calculate the winning segment
+                // The pointer is at the top (0 or 2*PI). We need to find which segment is under it.
+                // We rotate the wheel, so we find the angle relative to the wheel's rotation.
+                const pointerAngle = (2 * Math.PI) - finalRotation; // Angle of the pointer relative to wheel's 0
+                let winningIndex = Math.floor(pointerAngle / segmentAngle) % wheelSegments.length;
+                
+                const winningCategory = wheelSegments[winningIndex];
+
+                // Re-enable transition for next spin
+                setTimeout(() => {
+                    canvas.style.transition = 'transform 6s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                }, 0);
+
+                // Show question
+                showQuestion(winningCategory);
+
+            }, 6000); // Match CSS transition duration
+        }
+
+        // --- 5. QUESTION FUNCTIONS ---
+
+        /**
+         * Shows the question modal for the given category
+         */
+        function showQuestion(category) {
+            // Get a random question from the category
+            const categoryQuestions = triviaData[category.name];
+            const questionData = categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
+
+            // Populate modal
+            categoryTitle.textContent = category.name;
+            categoryTitle.style.color = category.color;
+            questionText.textContent = questionData.question;
+
+            // Clear old buttons and feedback
+            answerButtonsContainer.innerHTML = '';
+            feedback.innerHTML = '';
+            nextButton.classList.add('hidden');
+
+            // Create new answer buttons
+            questionData.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.textContent = answer;
+                button.classList.add('btn-answer', 'w-full', 'bg-white', 'border-2', 'border-gray-300', 'hover:border-gray-500', 'hover:bg-gray-100', 'text-gray-700', 'font-semibold', 'py-3', 'px-4', 'rounded-lg', 'shadow');
+                
+                button.addEventListener('click', () => {
+                    checkAnswer(index, questionData.correct, button);
+                });
+                answerButtonsContainer.appendChild(button);
+            });
+
+            // Show modal
+            modal.classList.remove('opacity-0', 'invisible');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }
+
+        /**
+         * Checks the selected answer
+         */
+        function checkAnswer(selectedIndex, correctIndex, selectedButton) {
+            // Disable all buttons
+            const allButtons = answerButtonsContainer.querySelectorAll('button');
+            allButtons.forEach(btn => btn.classList.add('disabled'));
+
+            if (selectedIndex === correctIndex) {
+                // Correct answer
+                selectedButton.classList.add('correct');
+                feedback.textContent = 'Correct!';
+                feedback.style.color = '#10b981'; // Emerald-500
+            } else {
+                // Incorrect answer
+                selectedButton.classList.add('incorrect');
+                // Highlight the correct one
+                allButtons[correctIndex].classList.add('correct');
+                feedback.textContent = 'Incorrect!';
+                feedback.style.color = '#ef4444'; // Red-500
+            }
+
+            // Show "Next" button
+            nextButton.classList.remove('hidden');
+        }
+
+        /**
+         * Hides the modal and resets for the next spin
+         */
+        function hideModal() {
+            modal.classList.add('opacity-0', 'invisible');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            
+            // Reset spin button
+            isSpinning = false;
+            spinButton.disabled = false;
+            spinButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        // --- 6. EVENT LISTENERS ---
+        spinButton.addEventListener('click', spinWheel);
+        nextButton.addEventListener('click', hideModal);
+
+        // --- 7. INITIALIZE ---
+        window.onload = () => {
+            drawWheel();
+        };
+
+    </script>
+</body>
+</html>
