@@ -46,8 +46,8 @@
             justify-content: center;
             font-weight: 700;
             font-size: 1.1rem;
-            color: white;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            color: #000000; /* Changed to black */
+            text-shadow: none; /* Removed shadow */
             text-align: center;
             line-height: 1.2;
             padding: 4px;
@@ -55,7 +55,7 @@
 
         /* Position and rotate each label to sit in its quadrant */
         .label-sports { top: 0; right: 0; transform: rotate(45deg) translateY(-25%); }
-        .label-culture { bottom: 0; right: 0; transform: rotate(135deg) translateY(-25%); color: #000000; text-shadow: none; } /* Black text for white bg */
+        .label-culture { bottom: 0; right: 0; transform: rotate(135deg) translateY(-25%); } /* Removed redundant color style */
         .label-news { bottom: 0; left: 0; transform: rotate(225deg) translateY(-25%); }
         .label-opinion { top: 0; left: 0; transform: rotate(315deg) translateY(-25%); }
 
@@ -462,5 +462,6 @@
     </script>
 </body>
 </html>
+
 
 
