@@ -3,410 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Nebraskan Trivia Spin</title>
-    <!-- We'll use Tailwind CSS for easy and responsive styling -->
+    <title>Trivia Wheel Game</title>
+    <!-- 1. Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for the game */
+        /* 2. Custom styles for the wheel, pointer, and confetti */
         body {
+            /* Use a nice font */
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Style for the wheel pointer */
-        .wheel-pointer {
+        #wheel {
+            width: 300px;
+            height: 300px;
+            /* Create the 4-quadrant look with a conic gradient */
+            background: conic-gradient(
+                #f87171 0% 25%,   /* red-400 */
+                #60a5fa 25% 50%,  /* blue-400 */
+                #34d399 50% 75%,  /* emerald-400 */
+                #facc15 75% 100% /* amber-400 */
+            );
+            /* This is the magic: a 5-second spin with a nice "ease-out" effect */
+            transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .wheel-label {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            text-align: center;
+            line-height: 1.2;
+            padding: 4px;
+        }
+
+        /* Position and rotate each label to sit in its quadrant */
+        .label-sports { top: 0; right: 0; transform: rotate(45deg) translateY(-25%); }
+        .label-culture { bottom: 0; right: 0; transform: rotate(135deg) translateY(-25%); }
+        .label-news { bottom: 0; left: 0; transform: rotate(225deg) translateY(-25%); }
+        .label-opinion { top: 0; left: 0; transform: rotate(315deg) translateY(-25%); }
+
+        #pointer {
+            /* This creates the triangle pointer */
             width: 0;
             height: 0;
             border-left: 20px solid transparent;
             border-right: 20px solid transparent;
-            border-top: 30px solid #dc2626; /* Red-600 */
-            position: absolute;
-            top: -10px; /* Position it just above the center */
-            left: 50%;
-            transform: translateX(-50%);
+            border-top: 30px solid #1f2937; /* gray-800 */
             z-index: 10;
-            transition: transform 0.3s ease-out;
-        }
-
-        /* Canvas for the wheel */
-        canvas {
-            transition: transform 6s cubic-bezier(0.25, 0.1, 0.25, 1);
-            display: block;
-        }
-
-        /* Modal overlay */
-        #questionModal {
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        }
-
-        /* Custom button shadow for a 'bubbly' feel */
-        .btn-spin {
-            box-shadow: 0 5px 0 #059669; /* Emerald-700 */
-            transition: all 0.1s ease-in-out;
-        }
-
-        .btn-spin:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #059669;
         }
         
-        .btn-answer {
-            transition: all 0.2s ease;
-        }
-        
-        .btn-answer:hover {
-            transform: translateY(-2px);
-        }
-
-        /* Classes to be added by JS */
-        .correct {
-            background-color: #10b981 !important; /* Emerald-500 */
-            color: white !important;
-            border-color: #059669 !important;
-        }
-
-        .incorrect {
-            background-color: #ef4444 !important; /* Red-500 */
-            color: white !important;
-            border-color: #dc2626 !important;
-        }
-        
-        .disabled {
-            opacity: 0.7;
+        /* Confetti Animation */
+        #confetti-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden;
             pointer-events: none;
+            z-index: 99;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            /* The 'fall' animation is defined below */
+            animation: fall 3s ease-in forwards;
         }
 
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotateZ(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
+        }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100 text-gray-900 flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-lg mx-auto text-center">
+    <!-- 3. Main App Container -->
+    <div id="app" class="w-full max-w-lg mx-auto text-center">
         
-        <header class="mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-red-700">Daily Nebraskan</h1>
-            <h2 class="text-2xl md:text-3xl font-semibold text-gray-700">Trivia Spin</h2>
-        </header>
-
-        <!-- Wheel Container -->
-        <div class="relative w-80 h-80 md:w-96 md:h-96 mx-auto mb-8">
-            <div class="wheel-pointer"></div>
-            <canvas id="triviaWheel" width="400" height="400"></canvas>
-            <!-- Center pin -->
-            <div class="absolute top-1/2 left-1/2 w-10 h-10 bg-white rounded-full border-4 border-gray-700 transform -translate-x-1/2 -translate-y-1/2"></div>
+        <!-- ========================== -->
+        <!--      WHEEL VIEW            -->
+        <!-- ========================== -->
+        <div id="wheel-view">
+            <h1 class="text-3xl md:text-4xl font-bold mb-6">Trivia Wheel</h1>
+            <!-- Container for the pointer and wheel -->
+            <div class="relative flex flex-col items-center justify-center mb-6">
+                <!-- The pointer sits on top -->
+                <div id="pointer" class="absolute -top-4"></div>
+                <!-- The wheel itself -->
+                <div id="wheel" class="rounded-full overflow-hidden border-8 border-white shadow-xl">
+                    <div class="wheel-label label-sports">SPORTS</div>
+                    <div class="wheel-label label-culture">CULTURE</div>
+                    <div class="wheel-label label-news">NEWS</div>
+                    <div class="wheel-label label-opinion">OPINION</div>
+                </div>
+            </div>
+            <button id="spin-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-xl hover:bg-blue-700 transition duration-300 disabled:bg-gray-400">
+                SPIN THE WHEEL
+            </button>
         </div>
 
-        <!-- Spin Button -->
-        <button id="spinButton" class="btn-spin bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-2xl py-4 px-12 rounded-full shadow-lg focus:outline-none">
-            SPIN
-        </button>
-    </div>
-
-    <!-- Question Modal -->
-    <div id="questionModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 opacity-0 invisible z-20">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 md:p-8 transform scale-95 transition-transform duration-300" id="modalContent">
-            
-            <!-- Category Title -->
-            <h3 id="categoryTitle" class="text-2xl md:text-3xl font-bold text-center mb-4">
-                Category
-            </h3>
-
-            <!-- Question -->
-            <p id="questionText" class="text-lg md:text-xl text-gray-700 mb-6 min-h-[50px]">
-                Loading question...
-            </p>
-
-            <!-- Answers -->
-            <div id="answerButtons" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Answer buttons will be generated here -->
+        <!-- ========================== -->
+        <!--      QUESTION VIEW         -->
+        <!-- ========================== -->
+        <div id="question-view" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-2xl">
+            <h2 id="question-category" class="text-2xl font-bold mb-2 text-blue-600"></h2>
+            <p id="question-text" class="text-lg md:text-xl font-medium mb-6 min-h-[100px]"></p>
+            <!-- Answer buttons will be dynamically added here -->
+            <div id="answer-options" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Example: <button class="answer-btn">Answer 1</button> -->
             </div>
+        </div>
 
-            <!-- Feedback -->
-            <div id="feedback" class="text-center text-xl font-semibold mt-6 min-h-[30px]">
-                <!-- Feedback (Correct/Incorrect) shows here -->
-            </div>
-
-            <!-- Next Button -->
-            <div class="text-center mt-6">
-                <button id="nextButton" class="hidden bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-8 rounded-lg shadow-md transition-all">
+        <!-- ========================== -->
+        <!--      FEEDBACK MODAL        -->
+        <!-- ========================== -->
+        <div id="feedback-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+            <!-- This container holds the confetti -->
+            <div id="confetti-container"></div>
+            <!-- The modal content -->
+            <div class="relative bg-white p-8 rounded-xl shadow-2xl text-center w-full max-w-md">
+                <div id="feedback-icon" class="text-6xl mb-4"></div>
+                <p id="feedback-text" class="text-xl font-semibold mb-6"></p>
+                <button id="next-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-lg hover:bg-blue-700 transition duration-300">
                     Spin Again
                 </button>
             </div>
         </div>
+
     </div>
 
+    <!-- 4. JavaScript Game Logic -->
     <script>
-        // --- 1. TRIVIA DATA ---
-        // Questions based on the provided document
-        const triviaData = {
-            "Sports": [
-                {
-                    question: "Which two teams are the main contenders for the Big Ten Volleyball Championship mentioned in the article?",
-                    answers: ["Nebraska and Wisconsin", "Nebraska and Penn State", "Wisconsin and Purdue", "Nebraska and Minnesota"],
-                    correct: 0 // Index of the correct answer
-                },
-                {
-                    question: "Against which team did volleyball player Adriano have a career-high hitting percentage of .667?",
-                    answers: ["Michigan", "Wisconsin", "Michigan State", "Creighton"],
-                    correct: 2
-                },
-                {
-                    question: "What running back is noted as the 'Big Ten's rushing leader' in the football game against Northwestern?",
-                    answers: ["Dylan Raiola", "Emmett Johnson", "Isaiah Mozee", "Anthony Grant"],
-                    correct: 1
-                }
+        // --- QUESTION BANK ---
+        // All 40 questions are stored here
+        const questionBank = {
+            sports: [
+                { q: "According to the article 'Nebraska-Wisconsin could decide the Big Ten Volleyball Championship,' what two teams were the only undefeated teams left in the country at the time of writing?", options: ["Nebraska and Penn State", "Nebraska and Texas", "Wisconsin and Texas", "Penn State and Wisconsin"], correct: "Nebraska and Texas" },
+                { q: "In the same article, which Wisconsin setter suffered an injury on October 5th with no timeline to return?", options: ["Sarah Franklin", "Grace Lopez", "Izzy Starck", "Charlie Fuerbringer"], correct: "Charlie Fuerbringer" },
+                { q: "What is the Nebraska volleyball team's hitting percentage, noted as the best in the Big Ten since 2019?", options: [".300", ".335", ".249", ".767"], correct: ".335" },
+                { q: "In the article 'Adriano’s career day fuels Nebraska sweep over Michigan State,' which player posted a career-high hitting percentage of .667?", options: ["Rebekah Allick", "Adriano", "Bergen Reilly", "Malayah Long"], correct: "Adriano" },
+                { q: "What is the average fan attendance for Nebraska volleyball home games inside the Bob Devaney Sports Center?", options: ["8,056", "8,600", "9,000", "7,900"], correct: "8,600" },
+                { q: "According to the 'Report card' article, what grade was given to the Nebraska football team's rushing attack against Northwestern?", options: ["A", "B+", "A-", "B-"], correct: "A-" },
+                { q: "Who is the Big Ten's rushing leader who finished with 124 yards and two touchdowns against Northwestern?", options: ["Isaiah Mozee", "Anthony Grant", "Dylan Raiola", "Emmett Johnson"], correct: "Emmett Johnson" },
+                { q: "Which player sparked Nebraska's second-half momentum against Northwestern with a 95-yard kick return touchdown?", options: ["Kenneth Williams", "JD Spielman", "Nyziah Hunter", "Donovan Jones"], correct: "Kenneth Williams" },
+                { q: "What was the final score of the Nebraska vs. Northwestern football game?", options: ["21-14", "28-21", "21-21", "35-28"], correct: "28-21" },
+                { q: "Against Michigan State, senior middle blocker Rebekah Allick delivered her mini ball to which Michigan State player, whom she knew from Lincoln?", options: ["Kennedy Martin", "Bergen Reilly", "Malayah Long", "Izzy Starck"], correct: "Malayah Long" }
             ],
-            "Culture": [
-                {
-                    question: "What was the name of Spectrum UNL's drag show event?",
-                    answers: ["Night of the Living Drag Show", "Husker Drag Ball", "Centennial Room Stars", "Protect The Dolls"],
-                    correct: 0
-                },
-                {
-                    question: "Which Halloween costume does the author of the column specifically *not* want to see?",
-                    answers: ["Carmy from 'The Bear'", "Labubus", "Chappell Roan", "Priscilla Presley"],
-                    correct: 1
-                },
-                {
-                    question: "What is the name of Olivia Dean's sophomore album reviewed in the article?",
-                    answers: ["'Messy'", "'So Easy (To Fall In Love)'", "'The Art of Loving'", "'Man I Need'"],
-                    correct: 2
-                }
+            culture: [
+                { q: "What organization hosted the 'Night of the Living Drag Show' described in the article?", options: ["The Husker Pantry", "The UNL Gender and Sexuality Center", "Spectrum UNL", "The Jackie Gaughan Multicultural Center"], correct: "Spectrum UNL" },
+                { q: "All tips collected at the drag show went to which two funds?", options: ["The Husker Pantry and the UNL General Fund", "Spectrum’s Leadership Conference Fund and the UNL Gender and Sexuality Center’s Support Fund", "The performers' travel fund and the Husker Pantry", "The Centennial Room rental fund and the performers' costume fund"], correct: "Spectrum’s Leadership Conference Fund and the UNL Gender and Sexuality Center’s Support Fund" },
+                { q: "Performer Flatch Hest (Kaitlyn Richards) brought out a sign with what two messages on it?", options: ["“Protect The Dolls” and “Treat people with kindness”", "“Trans rights are human rights” and “Treat people with kindness”", "“Everyone’s welcome” and “Protect The Dolls”", "“Trans rights are human rights” and “All Men Are Pigs”"], correct: "“Trans rights are human rights” and “Treat people with kindness”" },
+                { q: "In the 'Halloween costume slays and nays' column, which trio costume from 2022 does the author say is overdone?", options: ["Devil and Angel", "'Kiss, Marry, Kill'", "Labubus", "Ghosts, goblins, and werewolves"], correct: "'Kiss, Marry, Kill'" },
+                { q: "The author of the Halloween column criticizes college guys for wearing what 'boring and lazy' costume?", options: ["A lifeguard", "A jersey", "A vampire", "A ghost"], correct: "A jersey" },
+                { q: "What 'niche' costume did the author wear last year, referencing a specific movie scene?", options: ["Blair Waldorf from 'Gossip Girl'", "Carmy from 'The Bear'", "Priscilla Presley in a black and white polka dot set", "Sabrina Carpenter in the 'Tears' music video"], correct: "Priscilla Presley in a black and white polka dot set" },
+                { q: "What is the title of Olivia Dean's sophomore album, which is reviewed in the article?", options: ["'Messy'", "'The Art of Loving'", "'Nice To Each Other'", "'Man I Need'"], correct: "'The Art of Loving'" },
+                { q: "Which song from the album alludes to 'Alice in Wonderland' by mentioning 'Chasing rabbits'?", options: ["'Lady Lady'", "'So Easy (To Fall In Love)'", "'Close Up'", "'Baby Steps'"], correct: "'Close Up'" },
+                { q: "Which track earned Olivia Dean her first career entry on the Billboard Hot 100?", options: ["'Nice To Each Other'", "'Man I Need'", "'Let Alone The One You Love'", "'Loud'"], correct: "'Man I Need'" },
+                { q: "What is the central theme of the song 'Something Inbetween'?", options: ["Recovering from a breakup", "The need for space in a relationship", "Mourning a relationship that is over", "The joy of falling in love"], correct: "The need for space in a relationship" }
             ],
-            "News": [
-                {
-                    question: "Where did the laundry fire at a UNL residence hall take place?",
-                    answers: ["The Courtyards, third floor", "Abel Hall, first floor", "Sandoz Hall, basement", "The Village, second floor"],
-                    correct: 0
-                },
-                {
-                    question: "What group is challenging Chancellor Bennett's proposed $27.5 million budget cut?",
-                    answers: ["The Board of Regents", "UNL's chapter of the American Association of University Professors (AAUP)", "The Nebraska Legislature", "The College of Journalism"],
-                    correct: 1
-                },
-                {
-                    question: "The UNL College of Journalism and Mass Communications proposed merging which two majors?",
-                    answers: ["Journalism and Broadcasting", "Advertising and Public Relations", "Sports Media and Journalism", "Broadcasting and Advertising"],
-                    correct: 0
-                }
+            news: [
+                { q: "According to the 'BREAKING' story, where did the fire at The Courtyards residence hall start?", options: ["In a dorm room on the first floor", "In the main lobby", "In a dryer in the third-floor laundry room", "In the building's cafeteria"], correct: "In a dryer in the third-floor laundry room" },
+                { q: "What was the proposed budget cut from Chancellor Rodney Bennett that UNL professors are disputing?", options: ["$75 million", "$8.7 million", "$27.5 million", "$49 million"], correct: "$27.5 million" },
+                { q: "The UNL AAUP chapter cited a report stating that NU’s 'AA' bond rating places it among the top ___ of higher education institutions in the U.S.", options: ["8%", "2%", "15%", "25%"], correct: "8%" },
+                { q: "A Flatwater Free Press report found that NU now spends more on what than it does on professors?", options: ["Student services", "Athletics", "Building maintenance", "Administrators"], correct: "Administrators" },
+                { q: "According to the report examining NU's spending shifts, instructional expenditures rose by 30.3% between 2016 and 2026, while administrative spending increased by how much?", options: ["7.6%", "31.7%", "53.1%", "74%"], correct: "53.1%" },
+                { q: "The College of Journalism and Mass Communications proposed merging which two majors?", options: ["Journalism and advertising/public relations", "Broadcasting and sports media", "Journalism and broadcasting", "Advertising and sports media"], correct: "Journalism and broadcasting" },
+                { q: "According to Dean Shari Veil, why was the merger proposed?", options: ["To reduce class sizes and offer more electives", "To align with national trends in journalism education", "To save money on faculty salaries", "To improve teaching/research metrics and increase enrollment"], correct: "To improve teaching/research metrics and increase enrollment" },
+                { q: "Which 40-year associate professor of Broadcasting applied for the Voluntary Separation Incentive Program (VSIP)?", options: ["Barney McCoy", "Shari Veil", "Rick Alloway", "Laurie Thomas Lee"], correct: "Rick Alloway" },
+                { q: "Which two programs in the College of Journalism have grown in recent years, with 397 and 381 students, respectively?", options: ["Journalism and broadcasting", "Broadcasting and media production", "Advertising/public relations and sports media/communications", "Journalism and sports media/communications"], correct: "Advertising/public relations and sports media/communications" },
+                { q: "What did UNL officials state was the reason for budget issues, despite the AAUP's report of 'strong financial health'?", options: ["A 7.8% decrease in full-time instructional employees", "The university's income has not kept pace with rising costs and inflation", "The S&P Global 'AA' bond rating was too low", "A 53.1% increase in administrative spending"], correct: "The university's income has not kept pace with rising costs and inflation" }
             ],
-            "Opinion": [
-                {
-                    question: "The author argues Gen Z is weird about age, partly due to a perceived cultural shift towards what?",
-                    answers: ["More progressive ideals", "Hustle culture", "More conservative and traditional ideals", "A 'Peter Pan syndrome'"],
-                    correct: 2
-                },
-                {
-                    question: "What is the main argument of the opinion piece 'Student teachers should be paid for their labor'?",
-                    answers: ["Student teaching experience is payment enough.", "Student teachers are working full-time jobs and should be compensated.", "Student teachers should receive more college credit.", "Student teaching should be replaced with internships."],
-                    correct: 1
-                },
-                {
-                    question: "What was the nickname of the McCook ICE detention center discussed in the ASUN resolution?",
-                    answers: ["'The Cornhusker Clink'", "'The Husker Lockup'", "'McCook Detention'", "'Nebraska ICE'"],
-                    correct: 0
-                }
+            opinion: [
+                { q: "In 'OPINION: Gen Z is weird about age,' what 'syndrome' does the author suggest Gen Z may suffer from due to feeling behind in life?", options: ["Peter Pan syndrome", "Imposter syndrome", "HustleTok syndrome", "Soft life syndrome"], correct: "Peter Pan syndrome" },
+                { q: "According to the NBC News survey cited, what did men who voted for Donald Trump rank as their number one factor for personal success?", options: ["Having a fulfilling career", "Achieving financial independence", "Having children", "Marriage"], correct: "Having children" },
+                { q: "The author defines the 'soft life' as a social media term that promotes what?", options: ["Getting married young and having children", "Achieving financial independence through 'HustleTok'", "Relaxation, low stress, and refraining from nightlife", "Curating a highlight reel of life to appear successful"], correct: "Relaxation, low stress, and refraining from nightlife" },
+                { q: "What is the main argument of the opinion piece 'Student teachers should be paid for their labor'?", options: ["Student teachers should receive more experience to justify not being paid.", "Student teachers should be paid because they are contributing meaningful labor.", "Student teachers should not have to update portfolios or write lesson plans.", "Student teachers should only work part-time jobs while teaching"], correct: "Student teachers should be paid because they are contributing meaningful labor." },
+                { q: "Besides being unpaid, what does the author point out as an unfair reality for student teachers?", options: ["They are actually paying tuition for credit hours to work.", "They are not allowed to interact with parents.", "They are required to work 12-hour days.", "They are not allowed to use the school's curriculum."], correct: "They are actually paying tuition for credit hours to work." },
+                { q: "According to the student teaching handbook, what are student teachers not required or guaranteed to receive, even while working 6-8 hours daily?", options: ["A curriculum", "Any kind of breaks", "A managing teacher", "Health insurance"], correct: "Any kind of breaks" },
+                { q: "In 'OPINION: Students or state,' what was the purpose of ASUN Senate Resolution #5 (SR #5)?", options: ["To demand the 'Cornhusker Clink' detention center be shut down.", "To release a statement against 'Cornhusker' being associated with the McCook ICE detention center.", "To sue the state for copyright infringement of the name 'Cornhuskers.'", "To request more funding from state legislators."], correct: "To release a statement against 'Cornhusker' being associated with the McCook ICE detention center." },
+                { q: "What is the colloquial nickname for the McCook ICE detention center?", options: ["The 'Cornhusker Clink'", "The 'McCook Facility'", "The 'Nebraska Detainer'", "The 'ASUN Center'"], correct: "The 'Cornhusker Clink'" },
+                { q: "What was the main concern expressed by senators like Reagan Choat who were worried about passing the resolution?", options: ["That the resolution was not strongly worded enough.", "That the nickname 'Cornhusker' was not a copyright violation.", "That there might be 'blowback' or negative reactions from UNL administration or state legislators.", "That the open forum for the student body was not long enough."], correct: "That there might be 'blowback' or negative reactions from UNL administration or state legislators." },
+                { q: "What did Speaker Madie Beasley argue in her closing statement?", options: ["'Our duty is to the state government and the students equally.'", "'This resolution is the best way to protect the university's copyright.'", "'We must preserve our relationship with the Board of Governors.'", "'Our duty is not to the state government. It is, and always will be, to the students.'"], correct: "'Our duty is not to the state government. It is, and always will be, to the students.'" }
             ]
         };
 
-        // --- 2. WHEEL CONFIGURATION ---
-        const categories = [
-            { name: "Sports", color: "#dc2626" },   // Red-600
-            { name: "Culture", color: "#059669" },  // Emerald-600
-            { name:t: "News", color: "#2563eb" },     // Blue-600
-            { name: "Opinion", color: "#d97706" }   // Amber-600
-        ];
+        // --- DOM ELEMENTS ---
+        // Get references to all the HTML elements we need to interact with
+        const wheelView = document.getElementById('wheel-view');
+        const questionView = document.getElementById('question-view');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const wheel = document.getElementById('wheel');
+        const spinBtn = document.getElementById('spin-btn');
+        const nextBtn = document.getElementById('next-btn');
         
-        // Repeat categories to fill the wheel
-        const wheelSegments = [...categories, ...categories]; 
-        const segmentAngle = (2 * Math.PI) / wheelSegments.length;
-        const canvas = document.getElementById('triviaWheel');
-        const ctx = canvas.getContext('2d');
-        const radius = canvas.width / 2;
+        const questionCategoryEl = document.getElementById('question-category');
+        const questionTextEl = document.getElementById('question-text');
+        const answerOptionsEl = document.getElementById('answer-options');
+        
+        const feedbackIconEl = document.getElementById('feedback-icon');
+        const feedbackTextEl = document.getElementById('feedback-text');
+        const confettiContainer = document.getElementById('confetti-container');
+
+        // --- GAME STATE ---
         let currentRotation = 0;
-        let isSpinning = false;
+        let currentQuestion = null;
+        // The categories are in order clockwise from the top-right
+        // This MUST match the order in the `conic-gradient` CSS
+        const categories = ['sports', 'culture', 'news', 'opinion'];
 
-        // --- 3. DOM ELEMENTS ---
-        const spinButton = document.getElementById('spinButton');
-        const modal = document.getElementById('questionModal');
-        const modalContent = document.getElementById('modalContent');
-        const categoryTitle = document.getElementById('categoryTitle');
-        const questionText = document.getElementById('questionText');
-        const answerButtonsContainer = document.getElementById('answerButtons');
-        const feedback = document.getElementById('feedback');
-        const nextButton = document.getElementById('nextButton');
-
-        // --- 4. WHEEL FUNCTIONS ---
+        // --- GAME FUNCTIONS ---
+        
+        /**
+         * 1. Spin the Wheel
+         * Called when the "SPIN" button is clicked
+         */
+        spinBtn.addEventListener('click', () => {
+            // Disable the button so you can't spin twice
+            spinBtn.disabled = true;
+            
+            // Add multiple full rotations (e.g., 5 * 360) + a random amount
+            const newRotation = currentRotation + (Math.random() * 1800) + 1800;
+            currentRotation = newRotation;
+            
+            // Apply the new rotation to the wheel element
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+        });
 
         /**
-         * Draws a single segment of the wheel
+         * 2. Handle the end of the spin animation
+         * This event fires automatically when the CSS transition finishes
          */
-        function drawSegment(index) {
-            const segment = wheelSegments[index];
-            const startAngle = index * segmentAngle;
-            const endAngle = (index + 1) * segmentAngle;
-
-            ctx.beginPath();
-            ctx.moveTo(radius, radius);
-            ctx.arc(radius, radius, radius - 10, startAngle, endAngle);
-            ctx.closePath();
+        wheel.addEventListener('transitionend', () => {
+            // Figure out where the wheel landed
+            // The pointer is at 0 degrees (the top)
+            // We use modulo 360 to get the final position (e.g., 5490deg % 360 = 90deg)
+            // (360 - angle) % 360 gives us the clockwise position relative to the 0-degree pointer
+            const landingAngle = (360 - (currentRotation % 360)) % 360;
             
-            ctx.fillStyle = segment.color;
-            ctx.fill();
+            let category;
             
-            ctx.save();
-            
-            // Draw text
-            ctx.translate(radius, radius);
-            ctx.rotate(startAngle + segmentAngle / 2);
-            ctx.textAlign = "right";
-            ctx.fillStyle = "#ffffff";
-            ctx.font = "bold 18px 'Inter', sans-serif";
-            ctx.fillText(segment.name, radius - 25, 10);
-            
-            ctx.restore();
-        }
-
-        /**
-         * Draws the entire wheel
-         */
-        function drawWheel() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            wheelSegments.forEach((_, index) => drawSegment(index));
-        }
-
-        /**
-         * Spins the wheel
-         */
-        function spinWheel() {
-            if (isSpinning) return;
-            isSpinning = true;
-            spinButton.disabled = true;
-            spinButton.classList.add('opacity-50', 'cursor-not-allowed');
-
-            // Calculate random spin
-            // Add multiple rotations (e.g., 5 * 360 degrees)
-            const randomExtraSpins = Math.floor(Math.random() * 4) + 4; // 4 to 7 full spins
-            const randomStopAngle = Math.random() * 2 * Math.PI; // Random final position
-            const totalRotation = (randomExtraSpins * 2 * Math.PI) + randomStopAngle;
-
-            // Apply rotation to canvas
-            canvas.style.transform = `rotate(${totalRotation}rad)`;
-            
-            // Wait for animation to end
-            setTimeout(() => {
-                // Normalize the rotation
-                const finalRotation = totalRotation % (2 * Math.PI);
-                canvas.style.transition = 'none'; // Disable transition for reset
-                canvas.style.transform = `rotate(${finalRotation}rad)`; // Set to final position
-                
-                // Calculate the winning segment
-                // The pointer is at the top (0 or 2*PI). We need to find which segment is under it.
-                // We rotate the wheel, so we find the angle relative to the wheel's rotation.
-                const pointerAngle = (2 * Math.PI) - finalRotation; // Angle of the pointer relative to wheel's 0
-                let winningIndex = Math.floor(pointerAngle / segmentAngle) % wheelSegments.length;
-                
-                const winningCategory = wheelSegments[winningIndex];
-
-                // Re-enable transition for next spin
-                setTimeout(() => {
-                    canvas.style.transition = 'transform 6s cubic-bezier(0.25, 0.1, 0.25, 1)';
-                }, 0);
-
-                // Show question
-                showQuestion(winningCategory);
-
-            }, 6000); // Match CSS transition duration
-        }
-
-        // --- 5. QUESTION FUNCTIONS ---
-
-        /**
-         * Shows the question modal for the given category
-         */
-        function showQuestion(category) {
-            // Get a random question from the category
-            const categoryQuestions = triviaData[category.name];
-            const questionData = categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
-
-            // Populate modal
-            categoryTitle.textContent = category.name;
-            categoryTitle.style.color = category.color;
-            questionText.textContent = questionData.question;
-
-            // Clear old buttons and feedback
-            answerButtonsContainer.innerHTML = '';
-            feedback.innerHTML = '';
-            nextButton.classList.add('hidden');
-
-            // Create new answer buttons
-            questionData.answers.forEach((answer, index) => {
-                const button = document.createElement('button');
-                button.textContent = answer;
-                button.classList.add('btn-answer', 'w-full', 'bg-white', 'border-2', 'border-gray-300', 'hover:border-gray-500', 'hover:bg-gray-100', 'text-gray-700', 'font-semibold', 'py-3', 'px-4', 'rounded-lg', 'shadow');
-                
-                button.addEventListener('click', () => {
-                    checkAnswer(index, questionData.correct, button);
-                });
-                answerButtonsContainer.appendChild(button);
-            });
-
-            // Show modal
-            modal.classList.remove('opacity-0', 'invisible');
-            modalContent.classList.remove('scale-95');
-            modalContent.classList.add('scale-100');
-        }
-
-        /**
-         * Checks the selected answer
-         */
-        function checkAnswer(selectedIndex, correctIndex, selectedButton) {
-            // Disable all buttons
-            const allButtons = answerButtonsContainer.querySelectorAll('button');
-            allButtons.forEach(btn => btn.classList.add('disabled'));
-
-            if (selectedIndex === correctIndex) {
-                // Correct answer
-                selectedButton.classList.add('correct');
-                feedback.textContent = 'Correct!';
-                feedback.style.color = '#10b981'; // Emerald-500
-            } else {
-                // Incorrect answer
-                selectedButton.classList.add('incorrect');
-                // Highlight the correct one
-                allButtons[correctIndex].classList.add('correct');
-                feedback.textContent = 'Incorrect!';
-                feedback.style.color = '#ef4444'; // Red-500
+            // Determine category based on the angle
+            if (landingAngle >= 0 && landingAngle < 90) { 
+                category = categories[0]; // 0-90 degrees: Sports
+            } else if (landingAngle >= 90 && landingAngle < 180) { 
+                category = categories[3]; // 90-180 degrees: Opinion (Note: Flipped from gradient for label layout)
+            } else if (landingAngle >= 180 && landingAngle < 270) { 
+                category = categories[2]; // 180-270 degrees: News
+            } else { 
+                category = categories[1]; // 270-360 degrees: Culture
             }
 
-            // Show "Next" button
-            nextButton.classList.remove('hidden');
+            // A small delay to let the user see the result, then show the question
+            setTimeout(() => {
+                displayQuestion(category);
+            }, 500); // 0.5 second delay
+        });
+
+        /**
+         * 3. Display a random question from the chosen category
+         */
+        function displayQuestion(category) {
+            // Hide the wheel and show the question card
+            wheelView.classList.add('hidden');
+            questionView.classList.remove('hidden');
+
+            // Get all questions for that category
+            const questions = questionBank[category];
+            // Pick a random one
+            const q = questions[Math.floor(Math.random() * questions.length)];
+            currentQuestion = q; // Store it so we can check the answer later
+
+            // Update the HTML
+            questionCategoryEl.textContent = category.toUpperCase();
+            questionTextEl.textContent = q.q;
+
+            // Clear old answer buttons
+            answerOptionsEl.innerHTML = '';
+            
+            // Create and add new answer buttons
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                // Use Tailwind classes for styling
+                button.className = "w-full bg-gray-100 border border-gray-300 p-3 rounded-lg text-left text-base md:text-lg hover:bg-gray-200 hover:border-blue-500 transition duration-200";
+                // Add a click listener to check the answer
+                button.addEventListener('click', checkAnswer);
+                answerOptionsEl.appendChild(button);
+            });
         }
 
         /**
-         * Hides the modal and resets for the next spin
+         * 4. Check if the user's selected answer is correct
          */
-        function hideModal() {
-            modal.classList.add('opacity-0', 'invisible');
-            modalContent.classList.remove('scale-100');
-            modalContent.classList.add('scale-95');
+        function checkAnswer(e) {
+            const selectedAnswer = e.target.textContent;
             
-            // Reset spin button
-            isSpinning = false;
-            spinButton.disabled = false;
-            spinButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            if (selectedAnswer === currentQuestion.correct) {
+                // User was right!
+                showFeedback(true);
+            } else {
+                // User was wrong
+                showFeedback(false);
+            }
         }
 
-        // --- 6. EVENT LISTENERS ---
-        spinButton.addEventListener('click', spinWheel);
-        nextButton.addEventListener('click', hideModal);
+        /**
+         * 5. Show the feedback modal (Correct/Incorrect)
+         */
+        function showFeedback(isCorrect) {
+            // Show the modal
+            feedbackModal.classList.remove('hidden');
+            // Clear any old confetti
+            confettiContainer.innerHTML = ''; 
 
-        // --- 7. INITIALIZE ---
-        window.onload = () => {
-            drawWheel();
-        };
+            if (isCorrect) {
+                feedbackIconEl.textContent = '🎉';
+                feedbackTextEl.textContent = 'Correct! Great job!';
+                startConfetti(); // Let it rain!
+            } else {
+                feedbackIconEl.textContent = '❌';
+                // Show the correct answer
+                feedbackTextEl.innerHTML = `Incorrect. <br><br> The correct answer was: <strong class="mt-2 block">${currentQuestion.correct}</strong>`;
+            }
+        }
 
+        /**
+         * 6. "Spin Again" button
+         * Resets the game back to the wheel
+         */
+        nextBtn.addEventListener('click', () => {
+            // Hide the modal and question card
+            feedbackModal.classList.add('hidden');
+            questionView.classList.add('hidden');
+            // Show the wheel
+            wheelView.classList.remove('hidden');
+            // Re-enable the spin button
+            spinBtn.disabled = false;
+            // Clean up confetti
+            confettiContainer.innerHTML = ''; 
+        });
+
+        /**
+         * 7. Confetti logic!
+         * Creates 30 little divs and animates them
+         */
+        function startConfetti() {
+            const colors = ['#f87171', '#60a5fa', '#34d399', '#facc15', '#a78bfa'];
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                // Random horizontal position
+                confetti.style.left = `${Math.random() * 100}vw`;
+                // Random animation delay to spread them out
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                // Random color
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confettiContainer.appendChild(confetti);
+                
+                // Remove the confetti element after the animation finishes
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
     </script>
 </body>
 </html>
