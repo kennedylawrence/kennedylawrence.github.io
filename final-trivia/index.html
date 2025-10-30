@@ -26,12 +26,12 @@
         #wheel {
             width: 300px;
             height: 300px;
-            /* Create the 4-quadrant look with a conic gradient */
+            /* Create the 4-quadrant look with a conic gradient - DN Colors */
             background: conic-gradient(
-                #f87171 0% 25%,   /* red-400 */
-                #60a5fa 25% 50%,  /* blue-400 */
-                #34d399 50% 75%,  /* emerald-400 */
-                #facc15 75% 100% /* amber-400 */
+                #b91c1c 0% 25%,   /* red-700 */
+                #ffffff 25% 50%,  /* white */
+                #000000 50% 75%,  /* black */
+                #6b7280 75% 100% /* gray-500 */
             );
             /* This is the magic: a 5-second spin with a nice "ease-out" effect */
             transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1);
@@ -55,7 +55,7 @@
 
         /* Position and rotate each label to sit in its quadrant */
         .label-sports { top: 0; right: 0; transform: rotate(45deg) translateY(-25%); }
-        .label-culture { bottom: 0; right: 0; transform: rotate(135deg) translateY(-25%); }
+        .label-culture { bottom: 0; right: 0; transform: rotate(135deg) translateY(-25%); color: #000000; text-shadow: none; } /* Black text for white bg */
         .label-news { bottom: 0; left: 0; transform: rotate(225deg) translateY(-25%); }
         .label-opinion { top: 0; left: 0; transform: rotate(315deg) translateY(-25%); }
 
@@ -121,6 +121,8 @@
             <div class="mt-6 text-xl font-semibold">
                 Correct Streak: <span id="streak-counter" class="text-red-700 text-2xl">0</span>
             </div>
+            <!-- New Goal Note -->
+            <div class="mt-2 text-sm text-gray-600">Goal: Get 3 in a row to win!</div>
         </div>
 
         <!-- ========================== -->
@@ -290,13 +292,13 @@
             
             // Determine category based on the angle
             if (landingAngle >= 0 && landingAngle < 90) { 
-                category = categories[0]; // 0-90 degrees: Sports
+                category = categories[0]; // 0-90 degrees: Sports (Red)
             } else if (landingAngle >= 90 && landingAngle < 180) { 
-                category = categories[3]; // 90-180 degrees: Opinion (Note: Flipped from gradient for label layout)
+                category = categories[1]; // 90-180 degrees: Culture (White)
             } else if (landingAngle >= 180 && landingAngle < 270) { 
-                category = categories[2]; // 180-270 degrees: News
+                category = categories[2]; // 180-270 degrees: News (Black)
             } else { 
-                category = categories[1]; // 270-360 degrees: Culture
+                category = categories[3]; // 270-360 degrees: Opinion (Grey)
             }
 
             // A small delay to let the user see the result, then show the question
@@ -460,4 +462,5 @@
     </script>
 </body>
 </html>
+
 
