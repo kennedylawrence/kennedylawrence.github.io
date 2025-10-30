@@ -26,7 +26,7 @@
         #wheel {
             width: 300px;
             height: 300px;
-            /* Create the 4-quadrant look with a conic gradient - DN Colors */
+            /* Create the 4-quadrant look with a conic gradient - Red/White */
             background: conic-gradient(
                 #b91c1c 0% 25%,   /* red-700 */
                 #ffffff 25% 50%,  /* white */
@@ -45,19 +45,18 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.1rem;
-            color: #000000; /* Changed to black */
-            text-shadow: none; /* Removed shadow */
+            font-size: 1.25rem; /* 20px */
+            color: #000000; /* All black text */
             text-align: center;
-            gap: 0.25rem;
+            line-height: 1.2;
+            padding: 4px;
         }
 
         /* Position and rotate each label to sit in its quadrant */
-        /* Adjusted transforms slightly to re-center with flex-col */
-        .label-sports { top: 0; right: 0; transform: rotate(45deg) translateY(-15%); }
-        .label-culture { bottom: 0; right: 0; transform: rotate(135deg) translateY(-15%); }
-        .label-news { bottom: 0; left: 0; transform: rotate(225deg) translateY(-15%); }
-        .label-opinion { top: 0; left: 0; transform: rotate(315deg) translateY(-15%); }
+        .label-sports { top: 0; right: 0; transform: rotate(45deg) translateY(-25%); }
+        .label-culture { bottom: 0; right: 0; transform: rotate(135deg) translateY(-25%); }
+        .label-news { bottom: 0; left: 0; transform: rotate(225deg) translateY(-25%); }
+        .label-opinion { top: 0; left: 0; transform: rotate(315deg) translateY(-25%); }
 
         #pointer {
             /* This creates the triangle pointer */
@@ -90,21 +89,6 @@
             0% { transform: translateY(-10vh) rotateZ(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
         }
-        
-        /* NEW: Animation for the bouncing icon */
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(-10%);
-                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
-            }
-            50% {
-                transform: translateY(0);
-                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-            }
-        }
-        .icon-bounce {
-            animation: bounce 1.5s infinite;
-        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900 flex items-center justify-center min-h-screen p-4">
@@ -123,39 +107,365 @@
                 <div id="pointer" class="absolute -top-4"></div>
                 <!-- The wheel itself -->
                 <div id="wheel" class="rounded-full overflow-hidden border-8 border-white shadow-xl">
-                    <div class="wheel-label label-sports flex-col"> <!-- Added flex-col -->
-                        <!-- NEW: Smiley Football SVG -->
-                        <svg class="w-10 h-10 text-gray-800" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-3.5 9c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm7 0c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm-3.5 4c-2.33 0-4.31 1.46-5.11 3.5h10.22c-.8-2.04-2.78-3.5-5.11-3.5z"/>
-                            <!-- Laces -->
-                            <path d="M12 4.5 v15 M9 12 h6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        SPORTS
-                    </div>
-                    <div class="wheel-label label-culture flex-col"> <!-- Added flex-col -->
-                        <!-- NEW: Culture SVG (Theater Masks) -->
-                        <svg class="w-10 h-10 text-gray-800" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 2a1 1 0 0 0-1 1v2.28A7.001 7.001 0 0 0 2 12c0 3.86 3.14 7 7 7s7-3.14 7-7a7.001 7.001 0 0 0-6-6.72V3a1 1 0 0 0-1-1zm0 4a5 5 0 0 1 5 5c0 2.76-2.24 5-5 5S4 14.76 4 12a5 5 0 0 1 5-5zm-2 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm4 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-2 3c-1.33 0-2 .67-2 1h4c0-.33-.67-1-2-1z"/>
-                            <path d="M15 8a1 1 0 0 0-1 1v2.28A7.001 7.001 0 0 0 8 20c0 3.86 3.14 7 7 7s7-3.14 7-7a7.001 7.001 0 0 0-6-6.72V9a1 1 0 0 0-1-1zm0 4a5 5 0 0 1 5 5c0 2.76-2.24 5-5 5s-5-2.24-5-5a5 5 0 0 1 5-5zm-2 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm4 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-2 4c1.33 0 2-.67 2-1h-4c0 .33.67 1 2 1z"/>
-                        </svg>
-                        CULTURE
-                    </div>
-                    <div class="wheel-label label-news flex-col"> <!-- Added flex-col -->
-                        <!-- NEW: News SVG (Newspaper) -->
-                        <svg class="w-10 h-10 text-gray-800" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20 5H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zM4 17V7h16v10H4z"/>
-                            <path d="M6 9h8v2H6zM6 12h8v2H6zM16 9h2v5h-2z"/>
-                        </svg>
-                        NEWS
-                    </div>
-                    <div class="wheel-label label-opinion flex-col"> <!-- Added flex-col -->
-                        <!-- NEW: Opinion SVG (Speech Bubble) -->
-                        <svg class="w-10 h-10 text-gray-800" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                             <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-                        </svg>
-                        OPINION
-                    </div>
+                    <div class="wheel-label label-sports">SPORTS</div>
+                    <div class="wheel-label label-culture">CULTURE</div>
+                    <div class="wheel-label label-news">NEWS</div>
+                    <div class="wheel-label label-opinion">OPINION</div>
                 </div>
             </div>
             <button id="spin-button" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-4 px-6 rounded-lg text-2xl transition-all shadow-lg active:scale-95">
+                SPIN THE WHEEL
+            </button>
+            
+            <!-- Streak Counter -->
+            <div class="mt-6">
+                <h2 class="text-2xl font-bold">Correct Streak: <span id="streak-counter" class="text-red-700">0</span></h2>
+                <p class="text-gray-600">(Goal: Get 3 in a row to win!)</p>
+            </div>
+        </div>
+
+        <!-- ========================== -->
+        <!--      QUESTION VIEW         -->
+        <!-- ========================== -->
+        <div id="question-view" class="hidden bg-white p-6 md:p-8 rounded-2xl shadow-2xl text-left">
+            <!-- Category Title -->
+            <h2 id="category-title" class="text-2xl font-bold mb-4 text-center font-merriweather text-red-700">
+                <!-- e.g., Sports -->
+            </h2>
+            
+            <!-- Question Text -->
+            <p id="question-text" class="text-lg md:text-xl mb-6">
+                <!-- e.g., Who won the big game? -->
+            </p>
+            
+            <!-- Answer Options -->
+            <div id="answer-options" class="space-y-3">
+                <!-- Options will be buttons like this: -->
+                <!-- <button class="answer-btn w-full text-left p-4 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all">Option 1</button> -->
+            </div>
+            
+            <!-- Feedback Area -->
+            <div id="feedback" class="mt-4 text-center text-3xl font-bold">
+                <!-- Feedback (e.g., 'X' or 'Correct!') goes here -->
+            </div>
+            
+            <!-- Confetti container (only shown on correct) -->
+            <div id="confetti-container"></div>
+        </div>
+
+        <!-- ========================== -->
+        <!--    WIN STREAK MODAL        -->
+        <!-- ========================== -->
+        <div id="win-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full">
+                <h2 class="text-3xl font-bold font-merriweather text-red-700 mb-4">You Won!</h2>
+                <p class="text-lg mb-6">You got 3 in a row! You win a free subscription to the Daily Nebraskan! <br> (Secret: It's free already 😉)</p>
+                <button id="close-modal-btn" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg transition-all shadow-lg active:scale-95">
+                    Keep Playing!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Main Game JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- 1. Get All Elements ---
+            const wheel = document.getElementById('wheel');
+            const spinButton = document.getElementById('spin-button');
+            const wheelView = document.getElementById('wheel-view');
+            const questionView = document.getElementById('question-view');
+            
+            const categoryTitle = document.getElementById('category-title');
+            const questionText = document.getElementById('question-text');
+            const answerOptions = document.getElementById('answer-options');
+            const feedback = document.getElementById('feedback');
+            
+            const confettiContainer = document.getElementById('confetti-container');
+            
+            const streakCounter = document.getElementById('streak-counter');
+            const winModal = document.getElementById('win-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+
+            // --- 2. Game State ---
+            let isSpinning = false;
+            let currentRotation = 0;
+            let currentStreak = 0;
+            // The categories, in order on the wheel (clockwise from top-right)
+            const categories = ['Sports', 'Culture', 'News', 'Opinion'];
+            
+            // This object holds which questions have been asked for each category
+            const questionTracker = {
+                'Sports': [],
+                'Culture': [],
+                'News': [],
+                'Opinion': []
+            };
+
+            // 4. All Questions
+            const allQuestions = {
+                'Sports': [
+                    { q: "According to the article 'Nebraska-Wisconsin could decide the Big Ten Volleyball Championship,' what two teams were the only undefeated teams left in the country at the time of writing?", a: ["Nebraska and Penn State", "Nebraska and Texas", "Wisconsin and Texas", "Penn State and Wisconsin"], c: 1 },
+                    { q: "In the same article, which Wisconsin setter suffered an injury on October 5th with no timeline to return?", a: ["Sarah Franklin", "Grace Lopez", "Izzy Starck", "Charlie Fuerbringer"], c: 3 },
+                    { q: "What is the Nebraska volleyball team's hitting percentage, noted as the best in the Big Ten since 2019?", a: [".300", ".335", ".249", ".767"], c: 1 },
+                    { q: "In the article 'Adriano’s career day fuels Nebraska sweep over Michigan State,' which player posted a career-high hitting percentage of .667?", a: ["Rebekah Allick", "Adriano", "Bergen Reilly", "Malayah Long"], c: 1 },
+                    { q: "What is the average fan attendance for Nebraska volleyball home games inside the Bob Devaney Sports Center?", a: ["8,056", "8,600", "9,000", "7,900"], c: 1 },
+                    { q: "According to the 'Report card' article, what grade was given to the Nebraska football team's rushing attack against Northwestern?", a: ["A", "B+", "A-", "B-"], c: 2 },
+                    { q: "Who is the Big Ten's rushing leader who finished with 124 yards and two touchdowns against Northwestern?", a: ["Isaiah Mozee", "Anthony Grant", "Dylan Raiola", "Emmett Johnson"], c: 3 },
+                    { q: "Which player sparked Nebraska's second-half momentum against Northwestern with a 95-yard kick return touchdown?", a: ["Kenneth Williams", "JD Spielman", "Nyziah Hunter", "Donovan Jones"], c: 0 },
+                    { q: "What was the final score of the Nebraska vs. Northwestern football game?", a: ["21-14", "28-21", "21-21", "35-28"], c: 1 },
+                    { q: "Against Michigan State, senior middle blocker Rebekah Allick delivered her mini ball to which Michigan State player, whom she knew from Lincoln?", a: ["Kennedy Martin", "Bergen Reilly", "Malayah Long", "Izzy Starck"], c: 2 }
+                ],
+                'Culture': [
+                    { q: "What organization hosted the 'Night of the Living Drag Show' described in the article?", a: ["The Husker Pantry", "The UNL Gender and Sexuality Center", "Spectrum UNL", "The Jackie Gaughan Multicultural Center"], c: 2 },
+                    { q: "All tips collected at the drag show went to which two funds?", a: ["The Husker Pantry and the UNL General Fund", "Spectrum’s Leadership Conference Fund and the UNL Gender and Sexuality Center’s Support Fund", "The performers' travel fund and the Husker Pantry", "The Centennial Room rental fund and the performers' costume fund"], c: 1 },
+                    { q: "Performer Flatch Hest (Kaitlyn Richards) brought out a sign with what two messages on it?", a: ["“Protect The Dolls” and “Treat people with kindness”", "“Trans rights are human rights” and “Treat people with kindness”", "“Everyone’s welcome” and “Protect The Dolls”", "“Trans rights are human rights” and “All Men Are Pigs”"], c: 1 },
+                    { q: "In the 'Halloween costume slays and nays' column, which trio costume from 2022 does the author say is overdone?", a: ["Devil and Angel", "'Kiss, Marry, Kill'", "Labubus", "Ghosts, goblins, and werewolves"], c: 1 },
+                    { q: "The author of the Halloween column criticizes college guys for wearing what 'boring and lazy' costume?", a: ["A lifeguard", "A jersey", "A vampire", "A ghost"], c: 1 },
+                    { q: "What 'niche' costume did the author wear last year, referencing a specific movie scene?", a: ["Blair Waldorf from 'Gossip Girl'", "Carmy from 'The Bear'", "Priscilla Presley in a black and white polka dot set", "Sabrina Carpenter in the 'Tears' music video"], c: 2 },
+                    { q: "What is the title of Olivia Dean's sophomore album, which is reviewed in the article?", a: ["'Messy'", "'The Art of Loving'", "'Nice To Each Other'", "'Man I Need'"], c: 1 },
+                    { q: "Which song from the album alludes to 'Alice in Wonderland' by mentioning 'Chasing rabbits'?", a: ["'Lady Lady'", "'So Easy (To Fall In Love)'", "'Close Up'", "'Baby Steps'"], c: 2 },
+                    { q: "Which track earned Olivia Dean her first career entry on the Billboard Hot 100?", a: ["'Nice To Each Other'", "'Man I Need'", "'Let Alone The One You Love'", "'Loud'"], c: 1 },
+                    { q: "What is the central theme of the song 'Something Inbetween'?", a: ["Recovering from a breakup", "The need for space in a relationship", "Mourning a relationship that is over", "The joy of falling in love"], c: 1 }
+                ],
+                'News': [
+                    { q: "According to the 'BREAKING' story, where did the fire at The Courtyards residence hall start?", a: ["In a dorm room on the first floor", "In the main lobby", "In a dryer in the third-floor laundry room", "In the building's cafeteria"], c: 2 },
+                    { q: "What was the proposed budget cut from Chancellor Rodney Bennett that UNL professors are disputing?", a: ["$75 million", "$8.7 million", "$27.5 million", "$49 million"], c: 2 },
+                    { q: "The UNL AAUP chapter cited a report stating that NU’s 'AA' bond rating places it among the top ___ of higher education institutions in the U.S.", a: ["8%", "2%", "15%", "25%"], c: 0 },
+                    { q: "A Flatwater Free Press report found that NU now spends more on what than it does on professors?", a: ["Student services", "Athletics", "Building maintenance", "Administrators"], c: 3 },
+                    { q: "According to the report examining NU's spending shifts, instructional expenditures rose by 30.3% between 2016 and 2026, while administrative spending increased by how much?", a: ["7.6%", "31.7%", "53.1%", "74%"], c: 2 },
+                    { q: "The College of Journalism and Mass Communications proposed merging which two majors?", a: ["Journalism and advertising/public relations", "Broadcasting and sports media", "Journalism and broadcasting", "Advertising and sports media"], c: 2 },
+                    { q: "According to Dean Shari Veil, why was the merger proposed?", a: ["To reduce class sizes and offer more electives", "To align with national trends in journalism education", "To save money on faculty salaries", "To improve teaching/research metrics and increase enrollment"], c: 3 },
+                    { q: "Which 40-year associate professor of Broadcasting applied for the Voluntary Separation Incentive Program (VSIP)?", a: ["Barney McCoy", "Shari Veil", "Rick Alloway", "Laurie Thomas Lee"], c: 2 },
+                    { q: "Which two programs in the College of Journalism have grown in recent years, with 397 and 381 students, respectively?", a: ["Journalism and broadcasting", "Broadcasting and media production", "Advertising/public relations and sports media/communications", "Journalism and sports media/communications"], c: 2 },
+                    { q: "What did UNL officials state was the reason for budget issues, despite the AAUP's report of 'strong financial health'?", a: ["A 7.8% decrease in full-time instructional employees", "The university's income has not kept pace with rising costs and inflation", "The S&P Global 'AA' bond rating was too low", "A 53.1% increase in administrative spending"], c: 1 }
+                ],
+                'Opinion': [
+                    { q: "In 'OPINION: Gen Z is weird about age,' what 'syndrome' does the author suggest Gen Z may suffer from due to feeling behind in life?", a: ["Peter Pan syndrome", "Imposter syndrome", "HustleTok syndrome", "Soft life syndrome"], c: 0 },
+                    { q: "According to the NBC News survey cited, what did men who voted for Donald Trump rank as their number one factor for personal success?", a: ["Having a fulfilling career", "Achieving financial independence", "Having children", "Marriage"], c: 2 },
+                    { q: "The author defines the 'soft life' as a social media term that promotes what?", a: ["Getting married young and having children", "Achieving financial independence through 'HustleTok'", "Relaxation, low stress, and refraining from nightlife", "Curating a highlight reel of life to appear successful"], c: 2 },
+                    { q: "What is the main argument of the opinion piece 'Student teachers should be paid for their labor'?", a: ["Student teachers should receive more experience to justify not being paid.", "Student teachers should be paid because they are contributing meaningful labor.", "Student teachers should not have to update portfolios or write lesson plans.", "Student teachers should only work part-time jobs while teaching."], c: 1 },
+                    { q: "Besides being unpaid, what does the author point out as an unfair reality for student teachers?", a: ["They are actually paying tuition for credit hours to work.", "They are not allowed to interact with parents.", "They are required to work 12-hour days.", "They are not allowed to use the school's curriculum."], c: 0 },
+                    { q: "According to the student teaching handbook, what are student teachers not required or guaranteed to receive, even while working 6-8 hours daily?", a: ["A curriculum", "Any kind of breaks", "A managing teacher", "Health insurance"], c: 1 },
+                    { q: "In 'OPINION: Students or state,' what was the purpose of ASUN Senate Resolution #5 (SR #5)?", a: ["To demand the 'Cornhusker Clink' detention center be shut down.", "To release a statement against 'Cornhusker' being associated with the McCook ICE detention center.", "To sue the state for copyright infringement of the name 'Cornhuskers.'", "To request more funding from state legislators."], c: 1 },
+                    { q: "What is the colloquial nickname for the McCook ICE detention center?", a: ["The 'Cornhusker Clink'", "The 'McCook Facility'", "The 'Nebraska Detainer'", "The 'ASUN Center'"], c: 0 },
+                    { q: "What was the main concern expressed by senators like Reagan Choat who were worried about passing the resolution?", a: ["That the resolution was not strongly worded enough.", "That the nickname 'Cornhusker' was not a copyright violation.", "That there might be 'blowback' or negative reactions from UNL administration or state legislators.", "That the open forum for the student body was not long enough."], c: 2 },
+                    { q: "What did Speaker Madie Beasley argue in her closing statement?", a: ["'Our duty is to the state government and the students equally.'", "'This resolution is the best way to protect the university's copyright.'", "'We must preserve our relationship with the Board of Governors.'", "'Our duty is not to the state government. It is, and always will be, to the students.'"], c: 3 }
+                ]
+            };
+
+            // --- 3. Event Listeners ---
+            spinButton.addEventListener('click', spinWheel);
+            closeModalBtn.addEventListener('click', () => {
+                winModal.classList.add('hidden');
+                // Go back to the wheel view
+                wheelView.classList.remove('hidden');
+            });
+
+            // --- 4. Game Functions ---
+
+            /**
+             * Spins the wheel to land on a random category
+             */
+            function spinWheel() {
+                if (isSpinning) return;
+                isSpinning = true;
+
+                // Calculate a new random rotation
+                // Add 5-10 full spins (360 * 5) to make it look good
+                const newRotation = currentRotation + (360 * 8) + Math.random() * 360;
+                
+                // Apply the new rotation to the wheel
+                wheel.style.transform = `rotate(${newRotation}deg)`;
+
+                // 5-second spin
+                setTimeout(() => {
+                    isSpinning = false;
+                    currentRotation = newRotation;
+                    
+                    // Figure out which category it landed on
+                    const actualRotation = newRotation % 360;
+                    
+                    // Corrected logic for 4 segments (0-90, 90-180, 180-270, 270-360)
+                    // The pointer is at the top (0 degrees).
+                    // The "Sports" segment is from 0 to 90 degrees (top-right).
+                    // We must account for the 45-degree offset of the labels
+                    // A 360-degree spin lands back at 0.
+                    // 0-90: Sports
+                    // 90-180: Opinion (was Culture)
+                    // 180-270: News
+                    // 270-360: Culture (was Opinion)
+                    
+                    let category;
+                    if (actualRotation >= 0 && actualRotation < 90) {
+                        category = 'Sports';
+                    } else if (actualRotation >= 90 && actualRotation < 180) {
+                        category = 'Opinion'; // Corrected
+                    } else if (actualRotation >= 180 && actualRotation < 270) {
+                        category = 'News';
+                    } else {
+                        category = 'Culture'; // Corrected
+                    }
+                    
+                    // Show the question for that category
+                    presentQuestion(category);
+
+                }, 5000); // Must match the CSS transition duration
+            }
+
+            /**
+             * Finds a new question for the category and displays it
+             */
+            function presentQuestion(category) {
+                // 1. Hide wheel, show question view
+                wheelView.classList.add('hidden');
+                questionView.classList.remove('hidden');
+
+                // 2. Get the list of questions for this category
+                const categoryQuestions = allQuestions[category];
+                
+                // 3. Find a question that hasn't been asked yet
+                let questionIndex = -1;
+                
+                // If we've asked all questions, reset the tracker for this category
+                if (questionTracker[category].length === categoryQuestions.length) {
+                    questionTracker[category] = [];
+                }
+
+                // Pick a random index until we find one not in the tracker
+                do {
+                    questionIndex = Math.floor(Math.random() * categoryQuestions.length);
+                } while (questionTracker[category].includes(questionIndex));
+                
+                // 4. Add this question to the tracker
+                questionTracker[category].push(questionIndex);
+                
+                // 5. Get the question object
+                const q = categoryQuestions[questionIndex];
+                
+                // 6. Show the question
+                showQuestion(category, q);
+            }
+
+            /**
+             * Populates the question view with the selected question
+             */
+            function showQuestion(category, q) {
+                // 1. Lock answers
+                let answerLocked = false;
+                
+                // 2. Clear out old question and answers
+                questionText.textContent = '';
+                answerOptions.innerHTML = '';
+                feedback.innerHTML = '';
+                confettiContainer.innerHTML = ''; // Clear old confetti
+                feedback.className = "mt-4 text-center text-3xl font-bold"; // Reset feedback classes
+                
+                // 3. Set new content
+                categoryTitle.textContent = category;
+                questionText.textContent = q.q;
+
+                // 4. Create answer buttons
+                q.a.forEach((answer, index) => {
+                    const button = document.createElement('button');
+                    button.textContent = answer;
+                    button.className = "answer-btn w-full text-left p-4 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all font-medium";
+                    
+                    // 5. Add click listener for the answer
+                    button.addEventListener('click', () => {
+                        if (answerLocked) return;
+                        answerLocked = true;
+                        
+                        // Check if correct
+                        if (index === q.c) {
+                            handleCorrectAnswer(button);
+                        } else {
+                            handleWrongAnswer(button);
+                        }
+                        
+                        // After 2 seconds, go back to the wheel
+                        setTimeout(() => {
+                            wheelView.classList.remove('hidden');
+                            questionView.classList.add('hidden');
+                        }, 2000);
+                    });
+                    
+                    answerOptions.appendChild(button);
+                });
+            }
+
+            /**
+             * Handles the logic for a correct answer
+             */
+            function handleCorrectAnswer(buttonEl) {
+                // Style button
+                buttonEl.classList.remove('bg-gray-100', 'hover:bg-gray-200');
+                buttonEl.classList.add('bg-green-500', 'text-white');
+                
+                // Show confetti
+                triggerConfetti();
+                
+                // Update streak
+                currentStreak++;
+                streakCounter.textContent = currentStreak;
+                
+                // Check for win
+                if (currentStreak === 3) {
+                    // Show win modal
+                    setTimeout(() => { // Show modal slightly after confetti
+                        winModal.classList.remove('hidden');
+                        wheelView.classList.add('hidden'); // Hide wheel *behind* modal
+                    }, 500);
+                    // Reset streak
+                    currentStreak = 0;
+                    streakCounter.textContent = currentStreak;
+                }
+            }
+
+            /**
+             * Handles the logic for a wrong answer
+             */
+            function handleWrongAnswer(buttonEl) {
+                // Style button
+                buttonEl.classList.remove('bg-gray-100', 'hover:bg-gray-200');
+                buttonEl.classList.add('bg-red-500', 'text-white');
+                
+                // Show 'X'
+                feedback.textContent = '❌';
+                feedback.classList.add('text-red-500');
+                
+                // Highlight the correct answer
+                const correctIndex = allQuestions[categoryTitle.textContent].find(q => q.q === questionText.textContent).c;
+                const correctButton = answerOptions.children[correctIndex];
+                correctButton.classList.remove('bg-gray-100', 'hover:bg-gray-200');
+                correctButton.classList.add('bg-green-500', 'text-white');
+                
+                // Reset streak
+                currentStreak = 0;
+                streakCounter.textContent = currentStreak;
+            }
+
+            /**
+             * Creates and animates confetti pieces
+             */
+            function triggerConfetti() {
+                const colors = ['#b91c1c', '#f59e0b', '#10b981', '#3b82f6', '#6366f1'];
+                for (let i = 0; i < 50; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'confetti-piece';
+                    piece.style.left = `${Math.random() * 100}%`;
+                    piece.style.top = `${-10 + Math.random() * 10}%`;
+                    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    piece.style.animationDelay = `${Math.random() * 3}s`;
+                    confettiContainer.appendChild(piece);
+                    
+                    // Remove piece after animation
+                    setTimeout(() => piece.remove(), 3000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
 
