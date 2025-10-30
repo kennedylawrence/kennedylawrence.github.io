@@ -3,14 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trivia Wheel Game</title>
+    <title>Daily Nebraskan Trivia Crack</title>
     <!-- 1. Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Import DN Fonts: Merriweather and Lato -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
+    
     <style>
         /* 2. Custom styles for the wheel, pointer, and confetti */
         body {
-            /* Use a nice font */
-            font-family: 'Inter', sans-serif;
+            /* Use DN's body font */
+            font-family: 'Lato', sans-serif;
+        }
+
+        /* Helper class for DN's headline font */
+        .font-merriweather {
+            font-family: 'Merriweather', serif;
         }
 
         #wheel {
@@ -91,7 +101,7 @@
         <!--      WHEEL VIEW            -->
         <!-- ========================== -->
         <div id="wheel-view">
-            <h1 class="text-3xl md:text-4xl font-bold mb-6">Trivia Wheel</h1>
+            <h1 class="text-3xl md:text-4xl font-bold mb-6 font-merriweather">Daily Nebraskan Trivia Crack</h1>
             <!-- Container for the pointer and wheel -->
             <div class="relative flex flex-col items-center justify-center mb-6">
                 <!-- The pointer sits on top -->
@@ -104,16 +114,20 @@
                     <div class="wheel-label label-opinion">OPINION</div>
                 </div>
             </div>
-            <button id="spin-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-xl hover:bg-blue-700 transition duration-300 disabled:bg-gray-400">
+            <button id="spin-btn" class="w-full bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-xl hover:bg-red-800 transition duration-300 disabled:bg-gray-400 font-merriweather">
                 SPIN THE WHEEL
             </button>
+            <!-- New Streak Counter -->
+            <div class="mt-6 text-xl font-semibold">
+                Correct Streak: <span id="streak-counter" class="text-red-700 text-2xl">0</span>
+            </div>
         </div>
 
         <!-- ========================== -->
         <!--      QUESTION VIEW         -->
         <!-- ========================== -->
         <div id="question-view" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-2xl">
-            <h2 id="question-category" class="text-2xl font-bold mb-2 text-blue-600"></h2>
+            <h2 id="question-category" class="text-2xl font-bold mb-2 text-red-700 font-merriweather"></h2>
             <p id="question-text" class="text-lg md:text-xl font-medium mb-6 min-h-[100px]"></p>
             <!-- Answer buttons will be dynamically added here -->
             <div id="answer-options" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -131,7 +145,26 @@
             <div class="relative bg-white p-8 rounded-xl shadow-2xl text-center w-full max-w-md">
                 <div id="feedback-icon" class="text-6xl mb-4"></div>
                 <p id="feedback-text" class="text-xl font-semibold mb-6"></p>
-                <button id="next-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-lg hover:bg-blue-700 transition duration-300">
+                <button id="next-btn" class="w-full bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-lg hover:bg-red-800 transition duration-300 font-merriweather">
+                    Spin Again
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================== -->
+        <!--    SUBSCRIPTION MODAL      -->
+        <!-- ========================== -->
+        <div id="subscription-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+            <!-- This container holds the confetti -->
+            <div id="confetti-container-sub"></div>
+            <!-- The modal content -->
+            <div class="relative bg-white p-8 rounded-xl shadow-2xl text-center w-full max-w-md">
+                <div id="sub-feedback-icon" class="text-6xl mb-4">🎉</div>
+                <p id="sub-feedback-headline" class="text-2xl font-bold mb-4 font-merriweather">You got 3 in a row!</p>
+                <p id="sub-feedback-text" class="text-lg font-semibold mb-6">You win a free subscription to the Daily Nebraskan!
+                    <span class="block text-sm font-normal mt-2">(secret: it's free already)</span>
+                </p>
+                <button id="sub-next-btn" class="w-full bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-lg hover:bg-red-800 transition duration-300 font-merriweather">
                     Spin Again
                 </button>
             </div>
@@ -199,9 +232,11 @@
         const wheelView = document.getElementById('wheel-view');
         const questionView = document.getElementById('question-view');
         const feedbackModal = document.getElementById('feedback-modal');
+        const subscriptionModal = document.getElementById('subscription-modal'); // New modal
         const wheel = document.getElementById('wheel');
         const spinBtn = document.getElementById('spin-btn');
         const nextBtn = document.getElementById('next-btn');
+        const subNextBtn = document.getElementById('sub-next-btn'); // New modal button
         
         const questionCategoryEl = document.getElementById('question-category');
         const questionTextEl = document.getElementById('question-text');
@@ -210,10 +245,14 @@
         const feedbackIconEl = document.getElementById('feedback-icon');
         const feedbackTextEl = document.getElementById('feedback-text');
         const confettiContainer = document.getElementById('confetti-container');
+        const confettiContainerSub = document.getElementById('confetti-container-sub'); // New confetti container
+        
+        const streakCounterEl = document.getElementById('streak-counter'); // New streak counter
 
         // --- GAME STATE ---
         let currentRotation = 0;
         let currentQuestion = null;
+        let correctStreak = 0; // New streak state
         // The categories are in order clockwise from the top-right
         // This MUST match the order in the `conic-gradient` CSS
         const categories = ['sports', 'culture', 'news', 'opinion'];
@@ -307,9 +346,18 @@
             
             if (selectedAnswer === currentQuestion.correct) {
                 // User was right!
-                showFeedback(true);
+                correctStreak++;
+                updateStreakCounter();
+                
+                if (correctStreak === 3) {
+                    showSubscriptionWin();
+                } else {
+                    showFeedback(true);
+                }
             } else {
                 // User was wrong
+                correctStreak = 0;
+                updateStreakCounter();
                 showFeedback(false);
             }
         }
@@ -326,7 +374,7 @@
             if (isCorrect) {
                 feedbackIconEl.textContent = '🎉';
                 feedbackTextEl.textContent = 'Correct! Great job!';
-                startConfetti(); // Let it rain!
+                startConfetti(confettiContainer); // Let it rain!
             } else {
                 feedbackIconEl.textContent = '❌';
                 // Show the correct answer
@@ -335,12 +383,46 @@
         }
 
         /**
-         * 6. "Spin Again" button
+         * 6. "Spin Again" button (from normal feedback modal)
          * Resets the game back to the wheel
          */
         nextBtn.addEventListener('click', () => {
-            // Hide the modal and question card
             feedbackModal.classList.add('hidden');
+            returnToWheel();
+        });
+
+        /**
+         * 7. "Spin Again" button (from subscription modal)
+         * Resets the game back to the wheel
+         */
+        subNextBtn.addEventListener('click', () => {
+            subscriptionModal.classList.add('hidden');
+            returnToWheel();
+        });
+
+        /**
+         * 8. New function to show subscription win modal
+         */
+        function showSubscriptionWin() {
+            subscriptionModal.classList.remove('hidden');
+            confettiContainerSub.innerHTML = ''; // Clear old confetti
+            startConfetti(confettiContainerSub); // Start new confetti
+            correctStreak = 0; // Reset streak after winning
+            updateStreakCounter(); // Show the reset streak
+        }
+
+        /**
+         * 9. New function to update the streak counter display
+         */
+        function updateStreakCounter() {
+            streakCounterEl.textContent = correctStreak;
+        }
+
+        /**
+         * 10. Refactored function to return to the wheel
+         */
+        function returnToWheel() {
+            // Hide question card
             questionView.classList.add('hidden');
             // Show the wheel
             wheelView.classList.remove('hidden');
@@ -348,13 +430,15 @@
             spinBtn.disabled = false;
             // Clean up confetti
             confettiContainer.innerHTML = ''; 
-        });
+            confettiContainerSub.innerHTML = ''; 
+        }
 
         /**
-         * 7. Confetti logic!
+         * 11. Confetti logic!
          * Creates 30 little divs and animates them
+         * Now accepts a container to drop confetti into
          */
-        function startConfetti() {
+        function startConfetti(container) {
             const colors = ['#f87171', '#60a5fa', '#34d399', '#facc15', '#a78bfa'];
             for (let i = 0; i < 30; i++) {
                 const confetti = document.createElement('div');
@@ -365,7 +449,7 @@
                 confetti.style.animationDelay = `${Math.random() * 0.5}s`;
                 // Random color
                 confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confettiContainer.appendChild(confetti);
+                container.appendChild(confetti);
                 
                 // Remove the confetti element after the animation finishes
                 setTimeout(() => {
@@ -376,3 +460,4 @@
     </script>
 </body>
 </html>
+
