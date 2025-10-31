@@ -23,9 +23,15 @@
             font-family: 'Merriweather', serif;
         }
 
-        #wheel {
+        #wheel-container {
+            position: relative;
             width: 300px;
             height: 300px;
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
             /* Updated to Black and White */
             background: conic-gradient(
                 #111827 315deg 45deg,   /* Sports (top, black) */
@@ -34,9 +40,49 @@
                 #ffffff 225deg 315deg  /* Opinion (left, white) */
             );
             transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1);
+            border-radius: 9999px; /* full circle */
+            border: 8px solid white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .wheel-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: 0 0;
+            font-size: 1.25rem; /* 20px */
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #dc2626; /* red-600 */
+            pointer-events: none;
+        }
+
+        /* Position and rotate labels */
+        /* Each label is translated out from the center and then rotated */
+        /* We move them out 90px (less than half of 300px) so they don't hit the border */
+        
+        /* Sports: At 0 deg */
+        .label-sports {
+            transform: translate(90px, -10px) rotate(90deg);
+        }
+        /* Culture: At 90 deg */
+        .label-culture {
+            transform: translate(10px, 90px);
+        }
+        /* News: At 180 deg */
+        .label-news {
+             transform: translate(-90px, 10px) rotate(-90deg);
+        }
+        /* Opinion: At 270 deg */
+        .label-opinion {
+            transform: translate(0px, -90px) rotate(180deg);
         }
 
         #pointer {
+            position: absolute;
+            top: -22px; /* Positioned to point at the very top */
+            left: 50%;
+            transform: translateX(-50%);
             width: 0;
             height: 0;
             border-left: 20px solid transparent;
@@ -99,22 +145,21 @@
             <h1 class="text-3xl md:text-4xl font-bold mb-6 font-merriweather text-white shadow-sm">Daily Nebraskan Trivia Crack</h1>
             
             <!-- Container for wheel and labels -->
-            <!-- Increased size to give labels more room -->
-            <div class="relative w-[400px] h-[400px] md:w-[450px] md:h-[450px] mx-auto flex items-center justify-center mb-6">
-                <!-- Labels positioned around the wheel -->
-                <div class="absolute top-0 font-bold text-xl text-white">SPORTS</div>
-                <div class="absolute right-0 font-bold text-xl text-white">CULTURE</div>
-                <div class="absolute bottom-0 font-bold text-xl text-white">NEWS</div>
-                <div class="absolute left-0 font-bold text-xl text-white">OPINION</div>
-
-                <!-- Container for the pointer and wheel -->
-                <div class="relative flex flex-col items-center justify-center">
-                    <!-- The pointer sits on top -->
-                    <div id="pointer" class="absolute -top-4"></div>
-                    <!-- The wheel itself -->
-                    <div id="wheel" class="rounded-full overflow-hidden border-8 border-white shadow-xl">
-                        <!-- Labels are now outside this div -->
+            <div class="relative w-[300px] h-[300px] mx-auto flex items-center justify-center mb-10">
+                
+                <!-- The pointer sits on top -->
+                <div id="pointer"></div>
+                
+                <!-- The wheel itself -->
+                <div id="wheel-container">
+                    <div id="wheel">
+                        <!-- Labels are now placed inside the wheel container -->
                     </div>
+                    <!-- Red Labels on top of the wheel -->
+                    <div class="wheel-label label-sports">Sports</div>
+                    <div class="wheel-label label-culture">Culture</div>
+                    <div class="wheel-label label-news">News</div>
+                    <div class="wheel-label label-opinion">Opinion</div>
                 </div>
             </div>
 
@@ -604,17 +649,6 @@
             }
 
             // --- 7. Initial Setup ---
-            
-            // Set the correct wheel gradient from the start
-            // This is already set in the <style> tag, but we'll
-            // keep this here just in case.
-            wheel.style.background = `conic-gradient(
-                #111827 315deg 45deg,   /* Sports (top, black) */
-                #ffffff 45deg 135deg,  /* Culture (right, white) */
-                #111827 135deg 225deg, /* News (bottom, black) */
-                #ffffff 225deg 315deg  /* Opinion (left, white) */
-            )`;
-
             powerUp5050CountEl.textContent = powerUp5050Count;
             powerUpSkipCountEl.textContent = powerUpSkipCount;
             highestStreakCounter.textContent = highestStreak;
@@ -623,5 +657,4 @@
     </script>
 </body>
 </html>
-
 
