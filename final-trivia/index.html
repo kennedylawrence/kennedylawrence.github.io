@@ -49,14 +49,14 @@
             height: 100%;
             /* Black and White Checkerboard */
             background: conic-gradient(
-                #111827 0deg 90deg,   /* Opinion (top-left, black) */
-                #ffffff 90deg 180deg,  /* Sports (top-right, white) */
-                #111827 180deg 270deg, /* News (bottom-right, black) */
-                #ffffff 270deg 360deg  /* Culture (bottom-left, white) */
+                #ffffff 0deg 90deg,   /* Sports (top-right, white) */
+                #111827 90deg 180deg,  /* Opinion (top-left, black) */
+                #ffffff 180deg 270deg, /* Culture (bottom-left, white) */
+                #111827 270deg 360deg  /* News (bottom-right, black) */
             );
             transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1);
             border-radius: 9999px; /* full circle */
-            border: 10px solid #374151; /* gray-700 */
+            /* Removed the gray border */
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
@@ -89,30 +89,36 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 10px; /* Add padding to keep text from edges */
+            box-sizing: border-box; /* Include padding in width/height */
         }
         
+        /* Sports: Top-Right */
         #label-sports {
             top: 0;
             right: 0;
             transform: rotate(45deg) translateY(-25%) scale(0.9);
         }
         
-        #label-culture {
-            bottom: 0;
-            right: 0;
-            transform: rotate(135deg) translateY(-25%) scale(0.9);
+        /* Opinion: Top-Left */
+        #label-opinion {
+            top: 0;
+            left: 0;
+            transform: rotate(315deg) translateY(-25%) scale(0.9);
         }
-        
-        #label-news {
+
+        /* Culture: Bottom-Left */
+        #label-culture {
             bottom: 0;
             left: 0;
             transform: rotate(225deg) translateY(-25%) scale(0.9);
         }
         
-        #label-opinion {
-            top: 0;
-            left: 0;
-            transform: rotate(315deg) translateY(-25%) scale(0.9);
+        /* News: Bottom-Right */
+        #label-news {
+            bottom: 0;
+            right: 0;
+            transform: rotate(135deg) translateY(-25%) scale(0.9);
         }
 
         /* --- Question View Styles --- */
@@ -202,10 +208,11 @@
             <div id="wheel-container" class="mx-auto mb-6">
                 <div id="pointer"></div>
                 <div id="wheel">
+                    <!-- Labels now spin WITH the wheel -->
                     <div id="label-sports" class="wheel-label">Sports</div>
+                    <div id="label-opinion" class="wheel-label">Opinion</div>
                     <div id="label-culture" class="wheel-label">Culture</div>
                     <div id="label-news" class="wheel-label">News</div>
-                    <div id="label-opinion" class="wheel-label">Opinion</div>
                 </div>
             </div>
 
@@ -305,20 +312,23 @@
                     oscillator.stop(audioContext.currentTime + 0.1);
                 };
 
-                // Win sound (correct answer)
+                // Win sound (correct answer) - NEW CONGRATULATORY SOUND
                 winSound = () => {
                     if (!audioContext) return;
-                    const oscillator = audioContext.createOscillator();
-                    oscillator.type = 'triangle';
-                    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
-                    oscillator.frequency.linearRampToValueAtTime(1046.50, audioContext.currentTime + 0.1); // C6
+                    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
                     const gain = audioContext.createGain();
                     gain.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
-                    oscillator.connect(gain);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
                     gain.connect(audioContext.destination);
-                    oscillator.start();
-                    oscillator.stop(audioContext.currentTime + 0.2);
+                    
+                    notes.forEach((freq, i) => {
+                        const osc = audioContext.createOscillator();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, audioContext.currentTime + i * 0.1);
+                        osc.connect(gain);
+                        osc.start(audioContext.currentTime + i * 0.1);
+                        osc.stop(audioContext.currentTime + i * 0.1 + 0.1);
+                    });
                 };
 
                 // Lose sound (wrong answer)
@@ -405,7 +415,7 @@
                     { q: 'A Flatwater Free Press report found that NU now spends more on what than it does on professors?', a: ['Administrators', 'Student services', 'Athletics', 'Building maintenance'] },
                     { q: 'According to the report examining NU\'s spending shifts, instructional expenditures rose by 30.3% between 2016 and 2026, while administrative spending increased by how much?', a: ['53.1%', '7.6%', '31.7%', '74%'] },
                     { q: 'The College of Journalism and Mass Communications proposed merging which two majors?', a: ['Journalism and broadcasting', 'Journalism and advertising/public relations', 'Broadcasting and sports media', 'Advertising and sports media'] },
-                    { q: 'According to Dean Shari Veil, why was the merger proposed?', a: ['To improve teaching/research metrics and increase enrollment', 'To reduce class sizes and offer more electives', 'To align with national trends in journalism education', 'To save money on faculty salaries'] },
+                    { q: 'According to Dean Shari Veil, why was the merger proposed?', a: ['To improve teaching/research metrics and increase enrollment', 'To reduce class sizes and offer electives', 'To align with national trends in journalism education', 'To save money on faculty salaries'] },
                     { q: 'Which 40-year associate professor of Broadcasting applied for the Voluntary Separation Incentive Program (VSIP)?', a: ['Rick Alloway', 'Barney McCoy', 'Shari Veil', 'Laurie Thomas Lee'] },
                     { q: 'Which two programs in the College of Journalism have grown in recent years, with 397 and 381 students, respectively?', a: ['Advertising/public relations and sports media/communications', 'Journalism and broadcasting', 'Broadcasting and media production', 'Journalism and sports media/communications'] },
                     { q: 'What did UNL officials state was the reason for budget issues, despite the AAUP\'s report of "strong financial health"?', a: ['The university\'s income has not kept pace with rising costs and inflation', 'A 7.8% decrease in full-time instructional employees', 'The S&P Global \'AA\' bond rating was too low', 'A 53.1% increase in administrative spending'] }
@@ -423,6 +433,13 @@
                     { q: 'What did Speaker Madie Beasley argue in her closing statement?', a: ['"Our duty is not to the state government. It is, and always will be, to the students."', '"Our duty is to the state government and the students equally."', '"This resolution is the best way to protect the university\'s copyright."', '"We must preserve our relationship with the Board of Governors."'] }
                 ]
             };
+            
+            // --- Category definitions for the wheel ---
+            // 0-90: Sports (White)
+            // 90-180: Opinion (Black)
+            // 180-270: Culture (White)
+            // 270-360: News (Black)
+            const wheelCategories = ['Sports', 'Opinion', 'Culture', 'News'];
 
             // --- DOM Elements ---
             const wheelView = document.getElementById('wheel-view');
@@ -469,7 +486,8 @@
                 spinButton.disabled = true;
                 
                 // Calculate new rotation
-                const spinDegrees = Math.floor(Math.random() * 360) + 360 * 5; // Spin at least 5 times
+                // Spin at least 5 times. Add a random spin amount.
+                const spinDegrees = Math.floor(Math.random() * 360) + 360 * 5; 
                 currentRotation += spinDegrees;
                 
                 wheel.style.transform = `rotate(${currentRotation}deg)`;
@@ -483,26 +501,28 @@
                 
                 // Determine result after spin
                 setTimeout(() => {
-                    const actualRotation = (currentRotation - 45) % 360; // Offset by 45deg so 0 is top-middle of a quadrant
+                    // The pointer is at 0 (top).
+                    // We need to find what degree the wheel stopped at, relative to its start.
+                    // The "currentRotation" is how much it spun *from* its last position.
+                    // We need the *final* angle, modulo 360.
+                    const finalAngle = currentRotation % 360;
+
+                    // The wheel is laid out in 90-degree quadrants.
+                    // 0-90: Sports
+                    // 90-180: Opinion
+                    // 180-270: Culture
+                    // 270-360: News
                     
-                    let category;
+                    // The pointer is at the top (0 degrees). A rotation of X degrees
+                    // moves the X-degree mark to the top.
+                    // We want the category that *lands* at 0.
+                    // So we check which segment contains 360 - finalAngle.
                     
-                    // Spin Logic: Pointer is at 0 degrees (top).
-                    // We offset by 45deg.
-                    // Rotated 0-90: Sports (was 90-180)
-                    // Rotated 90-180: Culture (was 270-360)
-                    // Rotated 180-270: News (was 180-270)
-                    // Rotated 270-360: Opinion (was 0-90)
-                    
-                    if (actualRotation >= 0 && actualRotation < 90) {
-                        category = 'Sports'; 
-                    } else if (actualRotation >= 90 && actualRotation < 180) {
-                        category = 'Culture';
-                    } else if (actualRotation >= 180 && actualRotation < 270) {
-                        category = 'News';
-                    } else { // 270-360
-                        category = 'Opinion';
-                    }
+                    const landingAngle = (360 - finalAngle) % 360;
+
+                    // Find which quadrant the landingAngle falls into
+                    const categoryIndex = Math.floor(landingAngle / 90);
+                    const category = wheelCategories[categoryIndex];
                     
                     presentQuestion(category);
                     spinButton.disabled = false;
@@ -512,6 +532,13 @@
             function presentQuestion(category) {
                 // Get a random question from the category
                 const categoryQuestions = questions[category];
+                if (!categoryQuestions || categoryQuestions.length === 0) {
+                    console.error(`No questions found for category: ${category}`);
+                    // Handle this error, e.g., spin again
+                    showWheelView();
+                    return;
+                }
+                
                 const qIndex = Math.floor(Math.random() * categoryQuestions.length);
                 currentQuestion = categoryQuestions[qIndex];
                 
