@@ -32,12 +32,12 @@
         #wheel {
             width: 100%;
             height: 100%;
-            /* Updated to Black and White (new pattern) */
+            /* Updated to Black (100deg) and White (80deg) */
             background: conic-gradient(
-                #ffffff 315deg 45deg,   /* Sports (top, white) */
-                #111827 45deg 135deg,  /* Culture (right, black) */
-                #ffffff 135deg 225deg, /* News (bottom, white) */
-                #111827 225deg 315deg  /* Opinion (left, black) */
+                #ffffff 320deg 40deg,   /* Sports (top, white) - 80 deg */
+                #111827 40deg 140deg,  /* Culture (right, black) - 100 deg */
+                #ffffff 140deg 220deg, /* News (bottom, white) - 80 deg */
+                #111827 220deg 320deg  /* Opinion (left, black) - 100 deg */
             );
             transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1);
             border-radius: 9999px; /* full circle */
@@ -82,6 +82,7 @@
         }
 
         #pointer {
+            display: none; /* Pointer removed as requested */
             position: absolute;
             top: -22px; /* Positioned to point at the very top */
             left: 50%;
@@ -431,20 +432,20 @@
                     const actualRotation = newRotation % 360;
                     let category;
                     
-                    // Correct Spin Logic:
+                    // New Spin Logic:
                     // Pointer is at 0 degrees (top).
-                    // Sports (black): 315 (or -45) to 45.
-                    // Culture (white): 45 to 135.
-                    // News (black): 135 to 225.
-                    // Opinion (white): 225 to 315.
+                    // Sports (white): 320 (-40) to 40. (80 deg)
+                    // Culture (black): 40 to 140. (100 deg)
+                    // News (white): 140 to 220. (80 deg)
+                    // Opinion (black): 220 to 320. (100 deg)
                     
-                    if (actualRotation >= 315 || actualRotation < 45) {
+                    if (actualRotation >= 320 || actualRotation < 40) {
                         category = 'Sports';
-                    } else if (actualRotation >= 45 && actualRotation < 135) {
+                    } else if (actualRotation >= 40 && actualRotation < 140) {
                         category = 'Culture'; 
-                    } else if (actualRotation >= 135 && actualRotation < 225) {
+                    } else if (actualRotation >= 140 && actualRotation < 220) {
                         category = 'News';
-                    } else { // 225 to 315
+                    } else { // 220 to 320
                         category = 'Opinion';
                     }
                     
@@ -660,6 +661,7 @@
     </script>
 </body>
 </html>
+
 
 
 
