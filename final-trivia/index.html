@@ -12,13 +12,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* 2. Custom styles for the wheel, pointer, and confetti */
+        /* 2. Custom styles */
         body {
-            /* Use DN's body font */
             font-family: 'Lato', sans-serif;
         }
 
-        /* Helper class for DN's headline font */
         .font-merriweather {
             font-family: 'Merriweather', serif;
         }
@@ -26,14 +24,12 @@
         #wheel {
             width: 300px;
             height: 300px;
-            /* Create the 4-quadrant look with a conic gradient - Red/White */
             background: conic-gradient(
                 #b91c1c 0% 25%,   /* red-700 */
                 #ffffff 25% 50%,  /* white */
                 #b91c1c 50% 75%,  /* red-700 */
                 #ffffff 75% 100% /* white */
             );
-            /* This is the magic: a 5-second spin with a nice "ease-out" effect */
             transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
@@ -59,7 +55,6 @@
         .label-opinion { top: 0; left: 0; transform: rotate(315deg) translateY(-25%); }
 
         #pointer {
-            /* This creates the triangle pointer */
             width: 0;
             height: 0;
             border-left: 20px solid transparent;
@@ -68,7 +63,6 @@
             z-index: 10;
         }
         
-        /* Confetti Animation */
         #confetti-container {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -81,13 +75,30 @@
             width: 10px;
             height: 10px;
             opacity: 0;
-            /* The 'fall' animation is defined below */
             animation: fall 3s ease-in forwards;
         }
 
         @keyframes fall {
             0% { transform: translateY(-10vh) rotateZ(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
+        }
+
+        /* Power-up button styles */
+        .power-up-btn {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .power-up-btn:hover:not(:disabled) {
+            background-color: #2563eb; /* blue-600 */
+        }
+        .power-up-btn:disabled {
+            background-color: #9ca3af; /* gray-400 */
+            cursor: not-allowed;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -119,8 +130,17 @@
             
             <!-- Streak Counter -->
             <div class="mt-6">
-                <h2 class="text-2xl font-bold">Correct Streak: <span id="streak-counter" class="text-red-700">0</span></h2>
-                <p class="text-gray-600">(Goal: Get 3 in a row to win!)</p>
+                <div class="flex justify-around items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold">Current Streak</h2>
+                        <p id="streak-counter" class="text-4xl font-bold text-red-700">0</p>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold">Highest Streak</h2>
+                        <p id="highest-streak-counter" class="text-4xl font-bold text-gray-700">0</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 mt-2">(Goal: Get a streak of 3 or 5 to win!)</p>
             </div>
         </div>
 
@@ -132,6 +152,16 @@
             <h2 id="category-title" class="text-2xl font-bold mb-4 text-center font-merriweather text-red-700">
                 <!-- e.g., Sports -->
             </h2>
+
+            <!-- Power-Ups Section -->
+            <div id="power-ups-container" class="flex justify-center space-x-4 mb-4">
+                <button id="power-up-5050" class="power-up-btn">
+                    50/50 (<span id="power-up-5050-count">1</span>)
+                </button>
+                <button id="power-up-skip" class="power-up-btn">
+                    Skip (<span id="power-up-skip-count">1</span>)
+                </button>
+            </div>
             
             <!-- Question Text -->
             <p id="question-text" class="text-lg md:text-xl mb-6">
@@ -158,8 +188,8 @@
         <!-- ========================== -->
         <div id="win-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
             <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full">
-                <h2 class="text-3xl font-bold font-merriweather text-red-700 mb-4">You Won!</h2>
-                <p class="text-lg mb-6">You got 3 in a row! You win a free subscription to the Daily Nebraskan! <br> (Secret: It's free already 😉)</p>
+                <h2 id="win-modal-title" class="text-3xl font-bold font-merriweather text-red-700 mb-4">You Won!</h2>
+                <p id="win-modal-message" class="text-lg mb-6">You got 3 in a row! You win a free subscription to the Daily Nebraskan! <br> (Secret: It's free already 😉)</p>
                 <button id="close-modal-btn" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg transition-all shadow-lg active:scale-95">
                     Keep Playing!
                 </button>
@@ -184,25 +214,82 @@
             const confettiContainer = document.getElementById('confetti-container');
             
             const streakCounter = document.getElementById('streak-counter');
+            const highestStreakCounter = document.getElementById('highest-streak-counter');
             const winModal = document.getElementById('win-modal');
             const closeModalBtn = document.getElementById('close-modal-btn');
+            const winModalTitle = document.getElementById('win-modal-title');
+            const winModalMessage = document.getElementById('win-modal-message');
+
+            // Power-Up Elements
+            const powerUp5050Btn = document.getElementById('power-up-5050');
+            const powerUpSkipBtn = document.getElementById('power-up-skip');
+            const powerUp5050CountEl = document.getElementById('power-up-5050-count');
+            const powerUpSkipCountEl = document.getElementById('power-up-skip-count');
 
             // --- 2. Game State ---
             let isSpinning = false;
             let currentRotation = 0;
             let currentStreak = 0;
-            // The categories, in order on the wheel (clockwise from top-right)
+            let highestStreak = 0;
+            let currentQuestionData = null; // Holds the current {q, a, c} object
+
+            // Power-Up State
+            let powerUp5050Count = 1;
+            let powerUpSkipCount = 1;
+
             const categories = ['Sports', 'Culture', 'News', 'Opinion'];
             
-            // This object holds which questions have been asked for each category
             const questionTracker = {
-                'Sports': [],
-                'Culture': [],
-                'News': [],
-                'Opinion': []
+                'Sports': [], 'Culture': [], 'News': [], 'Opinion': []
             };
 
-            // 4. All Questions
+            // --- 3. Audio Setup (Web Audio API for no-file sounds) ---
+            let audioCtx;
+            function initAudio() {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            function playSound(type) {
+                if (!audioCtx) return; // Audio not initialized (e.g., user hasn't clicked)
+
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.01);
+
+                if (type === 'tick') {
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+                } else if (type === 'correct') {
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    oscillator.frequency.linearRampToValueAtTime(1046.50, audioCtx.currentTime + 0.2); // C6
+                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+                } else if (type === 'wrong') {
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(164.81, audioCtx.currentTime); // E3
+                    oscillator.frequency.linearRampToValueAtTime(130.81, audioCtx.currentTime + 0.2); // C3
+                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+                } else if (type === 'win') {
+                    // Play a little 3-note fanfare
+                    const now = audioCtx.currentTime;
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(523.25, now); // C5
+                    oscillator.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    oscillator.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+                }
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 1);
+            }
+
+            // --- 4. All Questions (Data) ---
             const allQuestions = {
                 'Sports': [
                     { q: "According to the article 'Nebraska-Wisconsin could decide the Big Ten Volleyball Championship,' what two teams were the only undefeated teams left in the country at the time of writing?", a: ["Nebraska and Penn State", "Nebraska and Texas", "Wisconsin and Texas", "Penn State and Wisconsin"], c: 1 },
@@ -218,7 +305,7 @@
                 ],
                 'Culture': [
                     { q: "What organization hosted the 'Night of the Living Drag Show' described in the article?", a: ["The Husker Pantry", "The UNL Gender and Sexuality Center", "Spectrum UNL", "The Jackie Gaughan Multicultural Center"], c: 2 },
-                    { q: "All tips collected at the drag show went to which two funds?", a: ["The Husker Pantry and the UNL General Fund", "Spectrum’s Leadership Conference Fund and the UNL Gender and Sexuality Center’s Support Fund", "The performers' travel fund and the Husker Pantry", "The Centennial Room rental fund and the performers' costume fund"], c: 1 },
+                    { q: "All tips collected at the drag show went to which two funds?", a: ["The Husker Pantry and the UNL General Fund", "Spectrum’s Leadership Conference Fund and the UNL Gender and sexuality Center’s Support Fund", "The performers' travel fund and the Husker Pantry", "The Centennial Room rental fund and the performers' costume fund"], c: 1 },
                     { q: "Performer Flatch Hest (Kaitlyn Richards) brought out a sign with what two messages on it?", a: ["“Protect The Dolls” and “Treat people with kindness”", "“Trans rights are human rights” and “Treat people with kindness”", "“Everyone’s welcome” and “Protect The Dolls”", "“Trans rights are human rights” and “All Men Are Pigs”"], c: 1 },
                     { q: "In the 'Halloween costume slays and nays' column, which trio costume from 2022 does the author say is overdone?", a: ["Devil and Angel", "'Kiss, Marry, Kill'", "Labubus", "Ghosts, goblins, and werewolves"], c: 1 },
                     { q: "The author of the Halloween column criticizes college guys for wearing what 'boring and lazy' costume?", a: ["A lifeguard", "A jersey", "A vampire", "A ghost"], c: 1 },
@@ -254,136 +341,132 @@
                 ]
             };
 
-            // --- 3. Event Listeners ---
-            spinButton.addEventListener('click', spinWheel);
+            // --- 5. Event Listeners ---
+            spinButton.addEventListener('click', () => {
+                initAudio(); // Initialize audio on first user click
+                spinWheel();
+            });
+            
             closeModalBtn.addEventListener('click', () => {
                 winModal.classList.add('hidden');
-                // Go back to the wheel view
                 wheelView.classList.remove('hidden');
             });
 
-            // --- 4. Game Functions ---
+            powerUp5050Btn.addEventListener('click', use5050);
+            powerUpSkipBtn.addEventListener('click', useSkip);
+
+            // --- 6. Game Functions ---
 
             /**
-             * Spins the wheel to land on a random category
+             * Spins the wheel
              */
             function spinWheel() {
                 if (isSpinning) return;
                 isSpinning = true;
 
-                // Calculate a new random rotation
-                // Add 5-10 full spins (360 * 5) to make it look good
                 const newRotation = currentRotation + (360 * 8) + Math.random() * 360;
                 
-                // Apply the new rotation to the wheel
+                // Wheel tick sound
+                const tickInterval = 50; // ms
+                const spinDuration = 5000; // ms, must match CSS
+                let ticks = spinDuration / tickInterval;
+                const ticker = setInterval(() => {
+                    playSound('tick');
+                    ticks--;
+                    if (ticks <= 0) clearInterval(ticker);
+                }, tickInterval);
+
                 wheel.style.transform = `rotate(${newRotation}deg)`;
 
-                // 5-second spin
                 setTimeout(() => {
                     isSpinning = false;
                     currentRotation = newRotation;
                     
-                    // Figure out which category it landed on
                     const actualRotation = newRotation % 360;
-                    
-                    // Corrected logic for 4 segments (0-90, 90-180, 180-270, 270-360)
-                    // The pointer is at the top (0 degrees).
-                    // The "Sports" segment is from 0 to 90 degrees (top-right).
-                    // We must account for the 45-degree offset of the labels
-                    // A 360-degree spin lands back at 0.
-                    // 0-90: Sports
-                    // 90-180: Opinion (was Culture)
-                    // 180-270: News
-                    // 270-360: Culture (was Opinion)
-                    
                     let category;
+                    
+                    // 0-90: Sports
+                    // 90-180: Culture
+                    // 180-270: News
+                    // 270-360: Opinion
                     if (actualRotation >= 0 && actualRotation < 90) {
                         category = 'Sports';
                     } else if (actualRotation >= 90 && actualRotation < 180) {
-                        category = 'Opinion'; // Corrected
+                        category = 'Culture'; 
                     } else if (actualRotation >= 180 && actualRotation < 270) {
                         category = 'News';
                     } else {
-                        category = 'Culture'; // Corrected
+                        category = 'Opinion';
                     }
                     
-                    // Show the question for that category
                     presentQuestion(category);
 
-                }, 5000); // Must match the CSS transition duration
+                }, 5000); 
             }
 
             /**
-             * Finds a new question for the category and displays it
+             * Finds and displays a new question
              */
             function presentQuestion(category) {
-                // 1. Hide wheel, show question view
                 wheelView.classList.add('hidden');
                 questionView.classList.remove('hidden');
 
-                // 2. Get the list of questions for this category
                 const categoryQuestions = allQuestions[category];
                 
-                // 3. Find a question that hasn't been asked yet
-                let questionIndex = -1;
-                
-                // If we've asked all questions, reset the tracker for this category
                 if (questionTracker[category].length === categoryQuestions.length) {
                     questionTracker[category] = [];
                 }
 
-                // Pick a random index until we find one not in the tracker
+                let questionIndex = -1;
                 do {
                     questionIndex = Math.floor(Math.random() * categoryQuestions.length);
                 } while (questionTracker[category].includes(questionIndex));
                 
-                // 4. Add this question to the tracker
                 questionTracker[category].push(questionIndex);
                 
-                // 5. Get the question object
                 const q = categoryQuestions[questionIndex];
+                currentQuestionData = q; // Store current question data
                 
-                // 6. Show the question
                 showQuestion(category, q);
             }
 
             /**
-             * Populates the question view with the selected question
+             * Populates the question view
              */
             function showQuestion(category, q) {
-                // 1. Lock answers
                 let answerLocked = false;
                 
-                // 2. Clear out old question and answers
                 questionText.textContent = '';
                 answerOptions.innerHTML = '';
                 feedback.innerHTML = '';
-                confettiContainer.innerHTML = ''; // Clear old confetti
-                feedback.className = "mt-4 text-center text-3xl font-bold"; // Reset feedback classes
+                confettiContainer.innerHTML = ''; 
+                feedback.className = "mt-4 text-center text-3xl font-bold"; 
                 
-                // 3. Set new content
                 categoryTitle.textContent = category;
                 questionText.textContent = q.q;
 
-                // 4. Create answer buttons
+                // Update and show power-up buttons
+                powerUp5050Btn.disabled = powerUp5050Count <= 0;
+                powerUpSkipBtn.disabled = powerUpSkipCount <= 0;
+                powerUp5050CountEl.textContent = powerUp5050Count;
+                powerUpSkipCountEl.textContent = powerUpSkipCount;
+
                 q.a.forEach((answer, index) => {
                     const button = document.createElement('button');
                     button.textContent = answer;
                     button.className = "answer-btn w-full text-left p-4 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all font-medium";
+                    button.dataset.index = index; // Store index for 50/50
                     
-                    // 5. Add click listener for the answer
                     button.addEventListener('click', () => {
                         if (answerLocked) return;
                         answerLocked = true;
                         
-                        // Check if correct
                         if (index === q.c) {
                             handleCorrectAnswer(button);
                         } else {
                             handleWrongAnswer(button);
                         }
                         
-                        // After 2 seconds, go back to the wheel
                         setTimeout(() => {
                             wheelView.classList.remove('hidden');
                             questionView.classList.add('hidden');
@@ -395,48 +478,104 @@
             }
 
             /**
-             * Handles the logic for a correct answer
+             * Logic for 50/50 power-up
+             */
+            function use5050() {
+                if (powerUp5050Count <= 0 || !currentQuestionData) return;
+                
+                powerUp5050Count--;
+                powerUp5050CountEl.textContent = powerUp5050Count;
+                powerUp5050Btn.disabled = true;
+
+                const correctIndex = currentQuestionData.c;
+                let wrongIndices = [0, 1, 2, 3].filter(i => i !== correctIndex);
+                
+                // Randomly pick one wrong index to keep
+                const keepWrongIndex = wrongIndices.splice(Math.floor(Math.random() * wrongIndices.length), 1)[0];
+                
+                // Disable the other two wrong buttons
+                wrongIndices.forEach(indexToDisable => {
+                    const btn = answerOptions.querySelector(`[data-index="${indexToDisable}"]`);
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.classList.add('opacity-50', 'bg-gray-300');
+                        btn.classList.remove('hover:bg-gray-200');
+                    }
+                });
+            }
+
+            /**
+             * Logic for Skip power-up
+             */
+            function useSkip() {
+                if (powerUpSkipCount <= 0) return;
+                
+                powerUpSkipCount--;
+                powerUpSkipCountEl.textContent = powerUpSkipCount;
+                powerUpSkipBtn.disabled = true;
+
+                // Don't count as right or wrong, just go back to wheel
+                // This preserves the streak!
+                wheelView.classList.remove('hidden');
+                questionView.classList.add('hidden');
+            }
+
+
+            /**
+             * Logic for correct answer
              */
             function handleCorrectAnswer(buttonEl) {
-                // Style button
+                playSound('correct');
                 buttonEl.classList.remove('bg-gray-100', 'hover:bg-gray-200');
                 buttonEl.classList.add('bg-green-500', 'text-white');
                 
-                // Show confetti
                 triggerConfetti();
                 
-                // Update streak
                 currentStreak++;
                 streakCounter.textContent = currentStreak;
                 
+                if (currentStreak > highestStreak) {
+                    highestStreak = currentStreak;
+                    highestStreakCounter.textContent = highestStreak;
+                }
+                
                 // Check for win
                 if (currentStreak === 3) {
-                    // Show win modal
-                    setTimeout(() => { // Show modal slightly after confetti
+                    playSound('win');
+                    winModalTitle.textContent = "You're on Fire!";
+                    winModalMessage.innerHTML = "You got 3 in a row! You win a free subscription to the Daily Nebraskan! <br> (Secret: It's free already 😉)";
+                    setTimeout(() => {
                         winModal.classList.remove('hidden');
-                        wheelView.classList.add('hidden'); // Hide wheel *behind* modal
+                        wheelView.classList.add('hidden'); 
                     }, 500);
-                    // Reset streak
+                    // Don't reset streak, let them go for 5!
+                } else if (currentStreak === 5) {
+                    playSound('win');
+                    winModalTitle.textContent = "DN Expert!";
+                    winModalMessage.innerHTML = "5-IN-A-ROW! You're an official trivia master. Maybe you should apply for a job? 🤔";
+                    setTimeout(() => {
+                        winModal.classList.remove('hidden');
+                        wheelView.classList.add('hidden'); 
+                    }, 500);
+                    // Reset streak after this big win
                     currentStreak = 0;
                     streakCounter.textContent = currentStreak;
                 }
             }
 
             /**
-             * Handles the logic for a wrong answer
+             * Logic for wrong answer
              */
             function handleWrongAnswer(buttonEl) {
-                // Style button
+                playSound('wrong');
                 buttonEl.classList.remove('bg-gray-100', 'hover:bg-gray-200');
                 buttonEl.classList.add('bg-red-500', 'text-white');
                 
-                // Show 'X'
                 feedback.textContent = '❌';
                 feedback.classList.add('text-red-500');
                 
-                // Highlight the correct answer
-                const correctIndex = allQuestions[categoryTitle.textContent].find(q => q.q === questionText.textContent).c;
-                const correctButton = answerOptions.children[correctIndex];
+                const correctIndex = currentQuestionData.c;
+                const correctButton = answerOptions.querySelector(`[data-index="${correctIndex}"]`);
                 correctButton.classList.remove('bg-gray-100', 'hover:bg-gray-200');
                 correctButton.classList.add('bg-green-500', 'text-white');
                 
@@ -446,7 +585,7 @@
             }
 
             /**
-             * Creates and animates confetti pieces
+             * Creates confetti
              */
             function triggerConfetti() {
                 const colors = ['#b91c1c', '#f59e0b', '#10b981', '#3b82f6', '#6366f1'];
@@ -460,10 +599,15 @@
                     piece.style.animationDelay = `${Math.random() * 3}s`;
                     confettiContainer.appendChild(piece);
                     
-                    // Remove piece after animation
                     setTimeout(() => piece.remove(), 3000);
                 }
             }
+
+            // --- 7. Initial UI Update ---
+            powerUp5050CountEl.textContent = powerUp5050Count;
+            powerUpSkipCountEl.textContent = powerUpSkipCount;
+            highestStreakCounter.textContent = highestStreak;
+
         });
     </script>
 </body>
