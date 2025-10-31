@@ -4,664 +4,671 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Nebraskan Trivia Crack</title>
-    <!-- 1. Load Tailwind CSS -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Import DN Fonts: Merriweather and Lato -->
+    
+    <!-- Daily Nebraskan Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* 2. Custom styles */
+        /* Base styling */
         body {
             font-family: 'Lato', sans-serif;
-            /* Red gradient background */
-            background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 100%);
+            /* Red Gradient Background */
+            background: linear-gradient(135deg, #c51d2c 0%, #a11622 100%);
         }
-
-        .font-merriweather {
+        
+        /* DN Headline Font */
+        .font-headline {
             font-family: 'Merriweather', serif;
+            font-weight: 900;
         }
 
+        /* DN Red Color */
+        .bg-dn-red {
+            background-color: #c51d2c;
+        }
+        .text-dn-red {
+            color: #c51d2c;
+        }
+
+        /* --- Wheel Styles --- */
         #wheel-container {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         #wheel {
             width: 100%;
             height: 100%;
-            /* Updated to Black (100deg) and White (80deg) */
+            /* Black and White Checkerboard */
             background: conic-gradient(
-                #ffffff 320deg 40deg,   /* Sports (top, white) - 80 deg */
-                #111827 40deg 140deg,  /* Culture (right, black) - 100 deg */
-                #ffffff 140deg 220deg, /* News (bottom, white) - 80 deg */
-                #111827 220deg 320deg  /* Opinion (left, black) - 100 deg */
+                #111827 0deg 90deg,   /* Opinion (top-left, black) */
+                #ffffff 90deg 180deg,  /* Sports (top-right, white) */
+                #111827 180deg 270deg, /* News (bottom-right, black) */
+                #ffffff 270deg 360deg  /* Culture (bottom-left, white) */
             );
             transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1);
             border-radius: 9999px; /* full circle */
-            border: 8px solid white;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 10px solid #374151; /* gray-700 */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
         }
-
-        .wheel-label {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            /* Updated transform-origin */
-            transform-origin: 50% 50%; 
-            font-size: 1.25rem; /* 20px */
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #dc2626; /* red-600 */
-            pointer-events: none;
-            /* Common transform to center the label */
-            transform: translate(-50%, -50%);
-        }
-
-        /* Position and rotate labels */
-        /* Each label is translated out from the center and then rotated */
-        /* We move them out 85px so they don't hit the border */
         
-        /* Sports: At 12 o'clock */
-        .label-sports {
-            transform: translate(-50%, -50%) translateY(-85px) rotate(90deg);
-        }
-        /* Culture: At 3 o'clock */
-        .label-culture {
-            transform: translate(-50%, -50%) translateX(85px) rotate(90deg);
-        }
-        /* News: At 6 o'clock */
-        .label-news {
-             transform: translate(-50%, -50%) translateY(85px) rotate(90deg);
-        }
-        /* Opinion: At 9 o'clock */
-        .label-opinion {
-            transform: translate(-50%, -50%) translateX(-85px) rotate(90deg);
-        }
-
+        /* Red Pointer */
         #pointer {
-            display: none; /* Pointer removed as requested */
             position: absolute;
             top: -22px; /* Positioned to point at the very top */
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            /* Updated to Red for visibility */
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
             border-top: 30px solid #dc2626; /* red-600 */
             z-index: 10;
         }
         
-        #confetti-container {
+        /* Wheel Labels (now spin with the wheel) */
+        .wheel-label {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 99;
+            width: 50%;
+            height: 50%;
+            color: #dc2626; /* red-600 */
+            font-family: 'Merriweather', serif;
+            font-weight: 900;
+            font-size: 1.25rem; /* text-xl */
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .confetti-piece {
+        
+        #label-sports {
+            top: 0;
+            right: 0;
+            transform: rotate(45deg) translateY(-25%) scale(0.9);
+        }
+        
+        #label-culture {
+            bottom: 0;
+            right: 0;
+            transform: rotate(135deg) translateY(-25%) scale(0.9);
+        }
+        
+        #label-news {
+            bottom: 0;
+            left: 0;
+            transform: rotate(225deg) translateY(-25%) scale(0.9);
+        }
+        
+        #label-opinion {
+            top: 0;
+            left: 0;
+            transform: rotate(315deg) translateY(-25%) scale(0.9);
+        }
+
+        /* --- Question View Styles --- */
+        .answer-btn {
+            transition: all 0.2s ease;
+        }
+        .answer-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* --- Confetti Styles --- */
+        .confetti {
             position: absolute;
             width: 10px;
             height: 10px;
-            opacity: 0;
-            animation: fall 3s ease-in forwards;
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotateZ(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
-        }
-
-        /* Power-up button styles (red) */
-        .power-up-btn {
-            background-color: #dc2626; /* red-600 */
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            transition: all 0.2s;
-            border: 2px solid #fef2f2; /* red-50 */
-        }
-        .power-up-btn:hover:not(:disabled) {
-            background-color: #b91c1c; /* red-700 */
-        }
-        .power-up-btn:disabled {
-            background-color: #9ca3af; /* gray-400 */
-            cursor: not-allowed;
+            background-color: #f00;
             opacity: 0.7;
+            animation: confetti-fall 3s ease-out forwards;
         }
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* --- Power-Up Button Styles --- */
+        .powerup-btn {
+            background-color: #c51d2c; /* DN Red */
+            color: white;
+            border: 2px solid white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px; /* full */
+            font-family: 'Lato', sans-serif;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .powerup-btn:hover:not(:disabled) {
+            background-color: #a11622;
+            transform: translateY(-2px);
+        }
+        .powerup-btn:disabled {
+            background-color: #6b7280; /* gray-500 */
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #9ca3af; /* gray-400 */
+        }
+
     </style>
 </head>
-<body class="text-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="text-white min-h-screen flex items-center justify-center p-4">
 
-    <!-- 3. Main App Container -->
-    <div id="app" class="w-full max-w-lg mx-auto text-center">
-        
-        <!-- ========================== -->
-        <!--      WHEEL VIEW            -->
-        <!-- ========================== -->
-        <div id="wheel-view">
-            <!-- Title -->
-            <h1 class="text-3xl md:text-4xl font-bold mb-6 font-merriweather text-white shadow-sm">Daily Nebraskan Trivia Crack</h1>
-            
-            <!-- Container for wheel and labels -->
-            <div class="relative w-[300px] h-[300px] mx-auto flex items-center justify-center mb-10">
-                
-                <!-- The pointer sits on top -->
-                <div id="pointer"></div>
-                
-                <!-- The wheel itself -->
-                <div id="wheel-container">
-                    <div id="wheel">
-                        <!-- Labels are now placed inside the wheel container -->
-                    </div>
-                    <!-- Red Labels on top of the wheel -->
-                    <div class="wheel-label label-sports">Sports</div>
-                    <div class="wheel-label label-culture">Culture</div>
-                    <div class="wheel-label label-news">News</div>
-                    <div class="wheel-label label-opinion">Opinion</div>
-                </div>
-            </div>
+    <!-- Audio Context Container -->
+    <div id="audio-context" class="hidden"></div>
 
-            <button id="spin-button" class="w-full bg-white hover:bg-gray-200 text-red-700 font-bold py-4 px-6 rounded-lg text-2xl transition-all shadow-lg active:scale-95">
-                SPIN THE WHEEL
-            </button>
+    <!-- Main Game Container -->
+    <div class="w-full max-w-2xl mx-auto">
+
+        <!-- 1. Wheel View -->
+        <div id="wheel-view" class="text-center">
+            <h1 class="font-headline text-5xl mb-4 text-shadow-lg">Daily Nebraskan Trivia Crack</h1>
             
-            <!-- Streak Counter -->
-            <div class="mt-6 bg-black bg-opacity-20 p-4 rounded-lg">
-                <div class="flex justify-around items-center">
+            <!-- Streak Counters -->
+            <div class="bg-white text-gray-800 rounded-lg p-4 mb-6 shadow-xl max-w-md mx-auto">
+                <div class="flex justify-around text-center">
                     <div>
-                        <h2 class="text-xl font-bold">Current Streak</h2>
-                        <p id="streak-counter" class="text-4xl font-bold text-white">0</p>
+                        <div class="font-bold text-lg text-dn-red">CURRENT STREAK</div>
+                        <div id="current-streak" class="font-headline text-4xl">0</div>
                     </div>
                     <div>
-                        <h2 class="text-xl font-bold">Highest Streak</h2>
-                        <p id="highest-streak-counter" class="text-4xl font-bold text-gray-300">0</p>
+                        <div class="font-bold text-lg text-dn-red">HIGHEST STREAK</div>
+                        <div id="highest-streak" class="font-headline text-4xl">0</div>
                     </div>
                 </div>
-                <!-- Updated Goal Text -->
-                <p class="text-gray-200 mt-2 text-sm">
-                    <b>DN expert:</b> win 3 games in a row. 
-                    <b>DN master:</b> win 5 games in a row.
+                <p class="text-gray-600 text-sm mt-3 font-semibold">
+                    DN expert: win 3 games in a row. DN master: win 5 games in a row.
                 </p>
             </div>
+
+            <!-- Wheel Container -->
+            <div id="wheel-container" class="mx-auto mb-6">
+                <div id="pointer"></div>
+                <div id="wheel">
+                    <div id="label-sports" class="wheel-label">Sports</div>
+                    <div id="label-culture" class="wheel-label">Culture</div>
+                    <div id="label-news" class="wheel-label">News</div>
+                    <div id="label-opinion" class="wheel-label">Opinion</div>
+                </div>
+            </div>
+
+            <button id="spin-button" class="w-full max-w-xs mx-auto bg-dn-red text-white font-bold py-4 px-8 rounded-full shadow-lg text-2xl font-headline transform transition hover:scale-105 hover:bg-red-700">
+                SPIN
+            </button>
         </div>
 
-        <!-- ========================== -->
-        <!--      QUESTION VIEW         -->
-        <!-- ========================== -->
-        <div id="question-view" class="hidden bg-white text-gray-900 p-6 md:p-8 rounded-2xl shadow-2xl text-left">
-            <!-- Category Title -->
-            <h2 id="category-title" class="text-2xl font-bold mb-4 text-center font-merriweather text-red-700">
-                <!-- e.g., Sports -->
-            </h2>
+        <!-- 2. Question View -->
+        <div id="question-view" class="hidden">
+            <div class="bg-white text-gray-800 rounded-lg shadow-2xl p-6 md:p-8">
+                
+                <!-- Power-Up Buttons -->
+                <div class="flex justify-center space-x-4 mb-4">
+                    <button id="powerup-5050" class="powerup-btn">50/50 (<span id="5050-count">1</span>)</button>
+                    <button id="powerup-skip" class="powerup-btn">Skip (<span id="skip-count">1</span>)</button>
+                </div>
 
-            <!-- Power-Ups Section -->
-            <div id="power-ups-container" class="flex justify-center space-x-4 mb-4">
-                <button id="power-up-5050" class="power-up-btn">
-                    50/50 (<span id="power-up-5050-count">1</span>)
+                <div class="text-center mb-4">
+                    <span id="question-category" class="font-headline text-3xl text-dn-red">Category</span>
+                </div>
+                <p id="question-text" class="text-xl font-semibold mb-6 min-h-[5rem]">
+                    Question text will go here.
+                </p>
+                <div id="answers-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Answer buttons will be injected here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 3. Feedback Modals -->
+        
+        <!-- Correct Answer Modal -->
+        <div id="correct-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white text-green-700 rounded-lg shadow-2xl p-8 text-center max-w-sm w-full">
+                <div class="text-8xl mb-4">🎉</div>
+                <h2 class="font-headline text-3xl mb-4">Correct!</h2>
+                <button id="next-question-btn" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-full text-lg transition hover:bg-green-700">
+                    Spin Again
                 </button>
-                <button id="power-up-skip" class="power-up-btn">
-                    Skip (<span id="power-up-skip-count">1</span>)
+            </div>
+        </div>
+        
+        <!-- Wrong Answer Modal -->
+        <div id="wrong-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white text-red-600 rounded-lg shadow-2xl p-8 text-center max-w-sm w-full">
+                <div class="text-8xl mb-4">❌</div>
+                <h2 class="font-headline text-3xl mb-4">Try Again!</h2>
+                <p class="text-gray-700 text-lg mb-6">Streak reset to 0.</p>
+                <button id="try-again-btn" class="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-full text-lg transition hover:bg-red-700">
+                    Spin Again
                 </button>
             </div>
-            
-            <!-- Question Text -->
-            <p id="question-text" class="text-lg md:text-xl mb-6">
-                <!-- e.g., Who won the big game? -->
-            </p>
-            
-            <!-- Answer Options -->
-            <div id="answer-options" class="space-y-3">
-                <!-- Options will be buttons like this: -->
-                <!-- <button class="answer-btn w-full text-left p-4 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all">Option 1</button> -->
-            </div>
-            
-            <!-- Feedback Area -->
-            <div id="feedback" class="mt-4 text-center text-3xl font-bold">
-                <!-- Feedback (e.g., 'X' or 'Correct!') goes here -->
-            </div>
-            
-            <!-- Confetti container (only shown on correct) -->
-            <div id="confetti-container"></div>
         </div>
 
-        <!-- ========================== -->
-        <!--    WIN STREAK MODAL        -->
-        <!-- ========================== -->
-        <div id="win-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-            <div class="bg-white text-gray-900 p-8 rounded-2xl shadow-2xl text-center max-w-md w-full">
-                <h2 id="win-modal-title" class="text-3xl font-bold font-merriweather text-red-700 mb-4">You Won!</h2>
-                <p id="win-modal-message" class="text-lg mb-6">You got 3 in a row! You win a free subscription to the Daily Nebraskan! <br> (Secret: It's free already 😉)</p>
-                <button id="close-modal-btn" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg transition-all shadow-lg active:scale-95">
+        <!-- Prize Modal -->
+        <div id="prize-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white text-gray-800 rounded-lg shadow-2xl p-8 text-center max-w-md w-full relative overflow-hidden">
+                <div id="confetti-container" class="absolute inset-0"></div>
+                <div class="text-7xl mb-4">🏆</div>
+                <h2 class="font-headline text-3xl mb-4 text-dn-red">YOU'RE A WINNER!</h2>
+                <p id="prize-text" class="text-gray-700 text-lg mb-6">
+                    You got 3 in a row and won a free subscription to the Daily Nebraskan! (secret: it's free already)
+                </p>
+                <button id="claim-prize-btn" class="w-full bg-dn-red text-white font-bold py-3 px-6 rounded-full text-lg transition hover:bg-red-700">
                     Keep Playing!
                 </button>
             </div>
         </div>
+
     </div>
 
-    <!-- 4. Main Game JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- 1. Get All Elements ---
-            const wheel = document.getElementById('wheel');
-            const spinButton = document.getElementById('spin-button');
-            const wheelView = document.getElementById('wheel-view');
-            const questionView = document.getElementById('question-view');
-            
-            const categoryTitle = document.getElementById('category-title');
-            const questionText = document.getElementById('question-text');
-            const answerOptions = document.getElementById('answer-options');
-            const feedback = document.getElementById('feedback');
-            
-            const confettiContainer = document.getElementById('confetti-container');
-            
-            const streakCounter = document.getElementById('streak-counter');
-            const highestStreakCounter = document.getElementById('highest-streak-counter');
-            const winModal = document.getElementById('win-modal');
-            const closeModalBtn = document.getElementById('close-modal-btn');
-            const winModalTitle = document.getElementById('win-modal-title');
-            const winModalMessage = document.getElementById('win-modal-message');
 
-            // Power-Up Elements
-            const powerUp5050Btn = document.getElementById('power-up-5050');
-            const powerUpSkipBtn = document.getElementById('power-up-skip');
-            const powerUp5050CountEl = document.getElementById('power-up-5050-count');
-            const powerUpSkipCountEl = document.getElementById('power-up-skip-count');
+            // --- Audio Setup ---
+            let audioContext;
+            let tickSound, winSound, loseSound, prizeSound;
 
-            // --- 2. Game State ---
-            let isSpinning = false;
-            let currentRotation = 0;
+            // Initialize audio context on first user interaction
+            function initAudio() {
+                if (audioContext) return;
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Tick sound (for wheel)
+                tickSound = () => {
+                    if (!audioContext) return;
+                    const oscillator = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+                    oscillator.connect(gain);
+                    gain.connect(audioContext.destination);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                };
+
+                // Win sound (correct answer)
+                winSound = () => {
+                    if (!audioContext) return;
+                    const oscillator = audioContext.createOscillator();
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                    oscillator.frequency.linearRampToValueAtTime(1046.50, audioContext.currentTime + 0.1); // C6
+                    const gain = audioContext.createGain();
+                    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+                    oscillator.connect(gain);
+                    gain.connect(audioContext.destination);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                };
+
+                // Lose sound (wrong answer)
+                loseSound = () => {
+                    if (!audioContext) return;
+                    const oscillator = audioContext.createOscillator();
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(164.81, audioContext.currentTime); // E3
+                    oscillator.frequency.linearRampToValueAtTime(130.81, audioContext.currentTime + 0.2); // C3
+                    const gain = audioContext.createGain();
+                    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+                    oscillator.connect(gain);
+                    gain.connect(audioContext.destination);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                };
+                
+                // Prize sound (3-in-a-row)
+                prizeSound = () => {
+                    if (!audioContext) return;
+                    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                    const gain = audioContext.createGain();
+                    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                    gain.connect(audioContext.destination);
+                    
+                    notes.forEach((freq, i) => {
+                        const osc = audioContext.createOscillator();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, audioContext.currentTime + i * 0.1);
+                        osc.connect(gain);
+                        osc.start(audioContext.currentTime + i * 0.1);
+                        osc.stop(audioContext.currentTime + i * 0.1 + 0.1);
+                    });
+                };
+            }
+            
+            // First interaction listener
+            document.body.addEventListener('click', initAudio, { once: true });
+            document.body.addEventListener('touchend', initAudio, { once: true });
+
+
+            // --- Game State ---
             let currentStreak = 0;
             let highestStreak = 0;
-            let currentQuestionData = null; // Holds the current {q, a, c} object
-
-            // Power-Up State
-            let powerUp5050Count = 1;
-            let powerUpSkipCount = 1;
-
-            const categories = ['Sports', 'Culture', 'News', 'Opinion'];
-            
-            const questionTracker = {
-                'Sports': [], 'Culture': [], 'News': [], 'Opinion': []
+            let currentRotation = 0;
+            let currentQuestion = null;
+            let powerups = {
+                5050: 1,
+                skip: 1
             };
 
-            // --- 3. Audio Setup (Web Audio API for no-file sounds) ---
-            let audioCtx;
-            function initAudio() {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-            }
-
-            function playSound(type) {
-                if (!audioCtx) return; // Audio not initialized (e.g., user hasn't clicked)
-
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.01);
-
-                if (type === 'tick') {
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
-                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
-                } else if (type === 'correct') {
-                    oscillator.type = 'triangle';
-                    oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-                    oscillator.frequency.linearRampToValueAtTime(1046.50, audioCtx.currentTime + 0.2); // C6
-                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
-                } else if (type === 'wrong') {
-                    oscillator.type = 'square';
-                    oscillator.frequency.setValueAtTime(164.81, audioCtx.currentTime); // E3
-                    oscillator.frequency.linearRampToValueAtTime(130.81, audioCtx.currentTime + 0.2); // C3
-                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
-                } else if (type === 'win') {
-                    // Play a little 3-note fanfare
-                    const now = audioCtx.currentTime;
-                    oscillator.type = 'triangle';
-                    oscillator.frequency.setValueAtTime(523.25, now); // C5
-                    oscillator.frequency.setValueAtTime(659.25, now + 0.1); // E5
-                    oscillator.frequency.setValueAtTime(783.99, now + 0.2); // G5
-                    gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
-                }
-                
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 1);
-            }
-
-            // --- 4. All Questions (Data) ---
-            const allQuestions = {
-                'Sports': [
-                    { q: "According to the article 'Nebraska-Wisconsin could decide the Big Ten Volleyball Championship,' what two teams were the only undefeated teams left in the country at the time of writing?", a: ["Nebraska and Penn State", "Nebraska and Texas", "Wisconsin and Texas", "Penn State and Wisconsin"], c: 1 },
-                    { q: "In the same article, which Wisconsin setter suffered an injury on October 5th with no timeline to return?", a: ["Sarah Franklin", "Grace Lopez", "Izzy Starck", "Charlie Fuerbringer"], c: 3 },
-                    { q: "What is the Nebraska volleyball team's hitting percentage, noted as the best in the Big Ten since 2019?", a: [".300", ".335", ".249", ".767"], c: 1 },
-                    { q: "In the article 'Adriano’s career day fuels Nebraska sweep over Michigan State,' which player posted a career-high hitting percentage of .667?", a: ["Rebekah Allick", "Adriano", "Bergen Reilly", "Malayah Long"], c: 1 },
-                    { q: "What is the average fan attendance for Nebraska volleyball home games inside the Bob Devaney Sports Center?", a: ["8,056", "8,600", "9,000", "7,900"], c: 1 },
-                    { q: "According to the 'Report card' article, what grade was given to the Nebraska football team's rushing attack against Northwestern?", a: ["A", "B+", "A-", "B-"], c: 2 },
-                    { q: "Who is the Big Ten's rushing leader who finished with 124 yards and two touchdowns against Northwestern?", a: ["Isaiah Mozee", "Anthony Grant", "Dylan Raiola", "Emmett Johnson"], c: 3 },
-                    { q: "Which player sparked Nebraska's second-half momentum against Northwestern with a 95-yard kick return touchdown?", a: ["Kenneth Williams", "JD Spielman", "Nyziah Hunter", "Donovan Jones"], c: 0 },
-                    { q: "What was the final score of the Nebraska vs. Northwestern football game?", a: ["21-14", "28-21", "21-21", "35-28"], c: 1 },
-                    { q: "Against Michigan State, senior middle blocker Rebekah Allick delivered her mini ball to which Michigan State player, whom she knew from Lincoln?", a: ["Kennedy Martin", "Bergen Reilly", "Malayah Long", "Izzy Starck"], c: 2 }
+            // --- Question Bank ---
+            const questions = {
+                Sports: [
+                    { q: 'According to the article "Nebraska-Wisconsin could decide the Big Ten Volleyball Championship," what two teams were the only undefeated teams left in the country at the time of writing?', a: ['Nebraska and Texas', 'Nebraska and Penn State', 'Wisconsin and Texas', 'Penn State and Wisconsin'] },
+                    { q: 'In the same article, which Wisconsin setter suffered an injury on October 5th with no timeline to return?', a: ['Charlie Fuerbringer', 'Sarah Franklin', 'Grace Lopez', 'Izzy Starck'] },
+                    { q: "What is the Nebraska volleyball team's hitting percentage, noted as the best in the Big Ten since 2019?", a: ['.335', '.300', '.249', '.767'] },
+                    { q: 'In the article "Adriano’s career day fuels Nebraska sweep over Michigan State," which player posted a career-high hitting percentage of .667?', a: ['Adriano', 'Rebekah Allick', 'Bergen Reilly', 'Malayah Long'] },
+                    { q: 'What is the average fan attendance for Nebraska volleyball home games inside the Bob Devaney Sports Center?', a: ['8,600', '8,056', '9,000', '7,900'] },
+                    { q: 'According to the "Report card" article, what grade was given to the Nebraska football team\'s rushing attack against Northwestern?', a: ['A-', 'A', 'B+', 'B-'] },
+                    { q: "Who is the Big Ten's rushing leader who finished with 124 yards and two touchdowns against Northwestern?", a: ['Emmett Johnson', 'Isaiah Mozee', 'Anthony Grant', 'Dylan Raiola'] },
+                    { q: "Which player sparked Nebraska's second-half momentum against Northwestern with a 95-yard kick return touchdown?", a: ['Kenneth Williams', 'JD Spielman', 'Nyziah Hunter', 'Donovan Jones'] },
+                    { q: 'What was the final score of the Nebraska vs. Northwestern football game?', a: ['28-21', '21-14', '21-21', '35-28'] },
+                    { q: 'Against Michigan State, senior middle blocker Rebekah Allick delivered her mini ball to which Michigan State player, whom she knew from Lincoln?', a: ['Malayah Long', 'Kennedy Martin', 'Bergen Reilly', 'Izzy Starck'] }
                 ],
-                'Culture': [
-                    { q: "What organization hosted the 'Night of the Living Drag Show' described in the article?", a: ["The Husker Pantry", "The UNL Gender and Sexuality Center", "Spectrum UNL", "The Jackie Gaughan Multicultural Center"], c: 2 },
-                    { q: "All tips collected at the drag show went to which two funds?", a: ["The Husker Pantry and the UNL General Fund", "Spectrum’s Leadership Conference Fund and the UNL Gender and sexuality Center’s Support Fund", "The performers' travel fund and the Husker Pantry", "The Centennial Room rental fund and the performers' costume fund"], c: 1 },
-                    { q: "Performer Flatch Hest (Kaitlyn Richards) brought out a sign with what two messages on it?", a: ["“Protect The Dolls” and “Treat people with kindness”", "“Trans rights are human rights” and “Treat people with kindness”", "“Everyone’s welcome” and “Protect The Dolls”", "“Trans rights are human rights” and “All Men Are Pigs”"], c: 1 },
-                    { q: "In the 'Halloween costume slays and nays' column, which trio costume from 2022 does the author say is overdone?", a: ["Devil and Angel", "'Kiss, Marry, Kill'", "Labubus", "Ghosts, goblins, and werewolves"], c: 1 },
-                    { q: "The author of the Halloween column criticizes college guys for wearing what 'boring and lazy' costume?", a: ["A lifeguard", "A jersey", "A vampire", "A ghost"], c: 1 },
-                    { q: "What 'niche' costume did the author wear last year, referencing a specific movie scene?", a: ["Blair Waldorf from 'Gossip Girl'", "Carmy from 'The Bear'", "Priscilla Presley in a black and white polka dot set", "Sabrina Carpenter in the 'Tears' music video"], c: 2 },
-                    { q: "What is the title of Olivia Dean's sophomore album, which is reviewed in the article?", a: ["'Messy'", "'The Art of Loving'", "'Nice To Each Other'", "'Man I Need'"], c: 1 },
-                    { q: "Which song from the album alludes to 'Alice in Wonderland' by mentioning 'Chasing rabbits'?", a: ["'Lady Lady'", "'So Easy (To Fall In Love)'", "'Close Up'", "'Baby Steps'"], c: 2 },
-                    { q: "Which track earned Olivia Dean her first career entry on the Billboard Hot 100?", a: ["'Nice To Each Other'", "'Man I Need'", "'Let Alone The One You Love'", "'Loud'"], c: 1 },
-                    { q: "What is the central theme of the song 'Something Inbetween'?", a: ["Recovering from a breakup", "The need for space in a relationship", "Mourning a relationship that is over", "The joy of falling in love"], c: 1 }
+                Culture: [
+                    { q: 'What organization hosted the "Night of the Living Drag Show" described in the article?', a: ['Spectrum UNL', 'The Husker Pantry', 'The UNL Gender and Sexuality Center', 'The Jackie Gaughan Multicultural Center'] },
+                    { q: 'All tips collected at the drag show went to which two funds?', a: ['Spectrum’s Leadership Conference Fund and the UNL Gender and Sexuality Center’s Support Fund', 'The Husker Pantry and the UNL General Fund', 'The performers\' travel fund and the Husker Pantry', 'The Centennial Room rental fund and the performers\' costume fund'] },
+                    { q: 'Performer Flatch Hest (Kaitlyn Richards) brought out a sign with what two messages on it?', a: ['“Trans rights are human rights” and “Treat people with kindness”', '“Protect The Dolls” and “Treat people with kindness”', '“Everyone’s welcome” and “Protect The Dolls”', '“Trans rights are human rights” and “All Men Are Pigs”'] },
+                    { q: 'In the "Halloween costume slays and nays" column, which trio costume from 2022 does the author say is overdone?', a: ['"Kiss, Marry, Kill"', 'Devil and Angel', 'Labubus', 'Ghosts, goblins, and werewolves'] },
+                    { q: 'The author of the Halloween column criticizes college guys for wearing what "boring and lazy" costume?', a: ['A jersey', 'A lifeguard', 'A vampire', 'A ghost'] },
+                    { q: 'What "niche" costume did the author wear last year, referencing a specific movie scene?', a: ['Priscilla Presley in a black and white polka dot set', 'Blair Waldorf from "Gossip Girl"', 'Carmy from "The Bear"', 'Sabrina Carpenter in the "Tears" music video'] },
+                    { q: 'What is the title of Olivia Dean\'s sophomore album, which is reviewed in the article?', a: ['"The Art of Loving"', '"Messy"', '"Nice To Each Other"', '"Man I Need"'] },
+                    { q: 'Which song from the album alludes to "Alice in Wonderland" by mentioning "Chasing rabbits"?', a: ['"Close Up"', '"Lady Lady"', '"So Easy (To Fall In Love)"', '"Baby Steps"'] },
+                    { q: 'Which track earned Olivia Dean her first career entry on the Billboard Hot 100?', a: ['"Man I Need"', '"Nice To Each Other"', '"Let Alone The One You Love"', '"Loud"'] },
+                    { q: 'What is the central theme of the song "Something Inbetween"?', a: ['The need for space in a relationship', 'Recovering from a breakup', 'Mourning a relationship that is over', 'The joy of falling in love'] }
                 ],
-                'News': [
-                    { q: "According to the 'BREAKING' story, where did the fire at The Courtyards residence hall start?", a: ["In a dorm room on the first floor", "In the main lobby", "In a dryer in the third-floor laundry room", "In the building's cafeteria"], c: 2 },
-                    { q: "What was the proposed budget cut from Chancellor Rodney Bennett that UNL professors are disputing?", a: ["$75 million", "$8.7 million", "$27.5 million", "$49 million"], c: 2 },
-                    { q: "The UNL AAUP chapter cited a report stating that NU’s 'AA' bond rating places it among the top ___ of higher education institutions in the U.S.", a: ["8%", "2%", "15%", "25%"], c: 0 },
-                    { q: "A Flatwater Free Press report found that NU now spends more on what than it does on professors?", a: ["Student services", "Athletics", "Building maintenance", "Administrators"], c: 3 },
-                    { q: "According to the report examining NU's spending shifts, instructional expenditures rose by 30.3% between 2016 and 2026, while administrative spending increased by how much?", a: ["7.6%", "31.7%", "53.1%", "74%"], c: 2 },
-                    { q: "The College of Journalism and Mass Communications proposed merging which two majors?", a: ["Journalism and advertising/public relations", "Broadcasting and sports media", "Journalism and broadcasting", "Advertising and sports media"], c: 2 },
-                    { q: "According to Dean Shari Veil, why was the merger proposed?", a: ["To reduce class sizes and offer more electives", "To align with national trends in journalism education", "To save money on faculty salaries", "To improve teaching/research metrics and increase enrollment"], c: 3 },
-                    { q: "Which 40-year associate professor of Broadcasting applied for the Voluntary Separation Incentive Program (VSIP)?", a: ["Barney McCoy", "Shari Veil", "Rick Alloway", "Laurie Thomas Lee"], c: 2 },
-                    { q: "Which two programs in the College of Journalism have grown in recent years, with 397 and 381 students, respectively?", a: ["Journalism and broadcasting", "Broadcasting and media production", "Advertising/public relations and sports media/communications", "Journalism and sports media/communications"], c: 2 },
-                    { q: "What did UNL officials state was the reason for budget issues, despite the AAUP's report of 'strong financial health'?", a: ["A 7.8% decrease in full-time instructional employees", "The university's income has not kept pace with rising costs and inflation", "The S&P Global 'AA' bond rating was too low", "A 53.1% increase in administrative spending"], c: 1 }
+                News: [
+                    { q: 'According to the "BREAKING" story, where did the fire at The Courtyards residence hall start?', a: ['In a dryer in the third-floor laundry room', 'In a dorm room on the first floor', 'In the main lobby', 'In the building\'s cafeteria'] },
+                    { q: 'What was the proposed budget cut from Chancellor Rodney Bennett that UNL professors are disputing?', a: ['$27.5 million', '$75 million', '$8.7 million', '$49 million'] },
+                    { q: 'The UNL AAUP chapter cited a report stating that NU’s \'AA\' bond rating places it among the top ___ of higher education institutions in the U.S.', a: ['8%', '2%', '15%', '25%'] },
+                    { q: 'A Flatwater Free Press report found that NU now spends more on what than it does on professors?', a: ['Administrators', 'Student services', 'Athletics', 'Building maintenance'] },
+                    { q: 'According to the report examining NU\'s spending shifts, instructional expenditures rose by 30.3% between 2016 and 2026, while administrative spending increased by how much?', a: ['53.1%', '7.6%', '31.7%', '74%'] },
+                    { q: 'The College of Journalism and Mass Communications proposed merging which two majors?', a: ['Journalism and broadcasting', 'Journalism and advertising/public relations', 'Broadcasting and sports media', 'Advertising and sports media'] },
+                    { q: 'According to Dean Shari Veil, why was the merger proposed?', a: ['To improve teaching/research metrics and increase enrollment', 'To reduce class sizes and offer more electives', 'To align with national trends in journalism education', 'To save money on faculty salaries'] },
+                    { q: 'Which 40-year associate professor of Broadcasting applied for the Voluntary Separation Incentive Program (VSIP)?', a: ['Rick Alloway', 'Barney McCoy', 'Shari Veil', 'Laurie Thomas Lee'] },
+                    { q: 'Which two programs in the College of Journalism have grown in recent years, with 397 and 381 students, respectively?', a: ['Advertising/public relations and sports media/communications', 'Journalism and broadcasting', 'Broadcasting and media production', 'Journalism and sports media/communications'] },
+                    { q: 'What did UNL officials state was the reason for budget issues, despite the AAUP\'s report of "strong financial health"?', a: ['The university\'s income has not kept pace with rising costs and inflation', 'A 7.8% decrease in full-time instructional employees', 'The S&P Global \'AA\' bond rating was too low', 'A 53.1% increase in administrative spending'] }
                 ],
-                'Opinion': [
-                    { q: "In 'OPINION: Gen Z is weird about age,' what 'syndrome' does the author suggest Gen Z may suffer from due to feeling behind in life?", a: ["Peter Pan syndrome", "Imposter syndrome", "HustleTok syndrome", "Soft life syndrome"], c: 0 },
-                    { q: "According to the NBC News survey cited, what did men who voted for Donald Trump rank as their number one factor for personal success?", a: ["Having a fulfilling career", "Achieving financial independence", "Having children", "Marriage"], c: 2 },
-                    { q: "The author defines the 'soft life' as a social media term that promotes what?", a: ["Getting married young and having children", "Achieving financial independence through 'HustleTok'", "Relaxation, low stress, and refraining from nightlife", "Curating a highlight reel of life to appear successful"], c: 2 },
-                    { q: "What is the main argument of the opinion piece 'Student teachers should be paid for their labor'?", a: ["Student teachers should receive more experience to justify not being paid.", "Student teachers should be paid because they are contributing meaningful labor.", "Student teachers should not have to update portfolios or write lesson plans.", "Student teachers should only work part-time jobs while teaching."], c: 1 },
-                    { q: "Besides being unpaid, what does the author point out as an unfair reality for student teachers?", a: ["They are actually paying tuition for credit hours to work.", "They are not allowed to interact with parents.", "They are required to work 12-hour days.", "They are not allowed to use the school's curriculum."], c: 0 },
-                    { q: "According to the student teaching handbook, what are student teachers not required or guaranteed to receive, even while working 6-8 hours daily?", a: ["A curriculum", "Any kind of breaks", "A managing teacher", "Health insurance"], c: 1 },
-                    { q: "In 'OPINION: Students or state,' what was the purpose of ASUN Senate Resolution #5 (SR #5)?", a: ["To demand the 'Cornhusker Clink' detention center be shut down.", "To release a statement against 'Cornhusker' being associated with the McCook ICE detention center.", "To sue the state for copyright infringement of the name 'Cornhuskers.'", "To request more funding from state legislators."], c: 1 },
-                    { q: "What is the colloquial nickname for the McCook ICE detention center?", a: ["The 'Cornhusker Clink'", "The 'McCook Facility'", "The 'Nebraska Detainer'", "The 'ASUN Center'"], c: 0 },
-                    { q: "What was the main concern expressed by senators like Reagan Choat who were worried about passing the resolution?", a: ["That the resolution was not strongly worded enough.", "That the nickname 'Cornhusker' was not a copyright violation.", "That there might be 'blowback' or negative reactions from UNL administration or state legislators.", "That the open forum for the student body was not long enough."], c: 2 },
-                    { q: "What did Speaker Madie Beasley argue in her closing statement?", a: ["'Our duty is to the state government and the students equally.'", "'This resolution is the best way to protect the university's copyright.'", "'We must preserve our relationship with the Board of Governors.'", "'Our duty is not to the state government. It is, and always will be, to the students.'"], c: 3 }
+                Opinion: [
+                    { q: 'In "OPINION: Gen Z is weird about age," what "syndrome" does the author suggest Gen Z may suffer from due to feeling behind in life?', a: ['Peter Pan syndrome', 'Imposter syndrome', 'HustleTok syndrome', 'Soft life syndrome'] },
+                    { q: 'According to the NBC News survey cited, what did men who voted for Donald Trump rank as their number one factor for personal success?', a: ['Having children', 'Having a fulfilling career', 'Achieving financial independence', 'Marriage'] },
+                    { q: 'The author defines the "soft life" as a social media term that promotes what?', a: ['Relaxation, low stress, and refraining from nightlife', 'Getting married young and having children', 'Achieving financial independence through "HustleTok"', 'Curating a highlight reel of life to appear successful'] },
+                    { q: 'What is the main argument of the opinion piece "Student teachers should be paid for their labor"?', a: ['Student teachers should be paid because they are contributing meaningful labor.', 'Student teachers should receive more experience to justify not being paid.', 'Student teachers should not have to update portfolios or write lesson plans.', 'Student teachers should only work part-time jobs while teaching.'] },
+                    { q: 'Besides being unpaid, what does the author point out as an unfair reality for student teachers?', a: ['They are actually paying tuition for credit hours to work.', 'They are not allowed to interact with parents.', 'They are required to work 12-hour days.', 'They are not allowed to use the school\'s curriculum.'] },
+                    { q: 'According to the student teaching handbook, what are student teachers not required or guaranteed to receive, even while working 6-8 hours daily?', a: ['Any kind of breaks', 'A curriculum', 'A managing teacher', 'Health insurance'] },
+                    { q: 'In "OPINION: Students or state," what was the purpose of ASUN Senate Resolution #5 (SR #5)?', a: ['To release a statement against "Cornhusker" being associated with the McCook ICE detention center.', 'To demand the "Cornhusker Clink" detention center be shut down.', 'To sue the state for copyright infringement of the name "Cornhuskers."', 'To request more funding from state legislators.'] },
+                    { q: 'What is the colloquial nickname for the McCook ICE detention center?', a: ['The "Cornhusker Clink"', 'The "McCook Facility"', 'The "Nebraska Detainer"', 'The "ASUN Center"'] },
+                    { q: 'What was the main concern expressed by senators like Reagan Choat who were worried about passing the resolution?', a: ['That there might be "blowback" or negative reactions from UNL administration or state legislators.', 'That the resolution was not strongly worded enough.', 'That the nickname "Cornhusker" was not a copyright violation.', 'That the open forum for the student body was not long enough.'] },
+                    { q: 'What did Speaker Madie Beasley argue in her closing statement?', a: ['"Our duty is not to the state government. It is, and always will be, to the students."', '"Our duty is to the state government and the students equally."', '"This resolution is the best way to protect the university\'s copyright."', '"We must preserve our relationship with the Board of Governors."'] }
                 ]
             };
 
-            // --- 5. Event Listeners ---
-            spinButton.addEventListener('click', () => {
-                initAudio(); // Initialize audio on first user click
-                spinWheel();
-            });
+            // --- DOM Elements ---
+            const wheelView = document.getElementById('wheel-view');
+            const questionView = document.getElementById('question-view');
+            const wheel = document.getElementById('wheel');
+            const spinButton = document.getElementById('spin-button');
             
-            closeModalBtn.addEventListener('click', () => {
-                winModal.classList.add('hidden');
-                wheelView.classList.remove('hidden');
+            const currentStreakDisplay = document.getElementById('current-streak');
+            const highestStreakDisplay = document.getElementById('highest-streak');
+            
+            const questionCategory = document.getElementById('question-category');
+            const questionText = document.getElementById('question-text');
+            const answersGrid = document.getElementById('answers-grid');
+            
+            const correctModal = document.getElementById('correct-modal');
+            const wrongModal = document.getElementById('wrong-modal');
+            const prizeModal = document.getElementById('prize-modal');
+            const prizeText = document.getElementById('prize-text');
+            
+            const nextQuestionBtn = document.getElementById('next-question-btn');
+            const tryAgainBtn = document.getElementById('try-again-btn');
+            const claimPrizeBtn = document.getElementById('claim-prize-btn');
+
+            const powerup5050Btn = document.getElementById('powerup-5050');
+            const powerupSkipBtn = document.getElementById('powerup-skip');
+            const count5050 = document.getElementById('5050-count');
+            const countSkip = document.getElementById('skip-count');
+
+            // --- Event Listeners ---
+            spinButton.addEventListener('click', spinWheel);
+            nextQuestionBtn.addEventListener('click', showWheelView);
+            tryAgainBtn.addEventListener('click', showWheelView);
+            claimPrizeBtn.addEventListener('click', () => {
+                prizeModal.classList.add('hidden');
+                showWheelView();
             });
+            powerup5050Btn.addEventListener('click', use5050);
+            powerupSkipBtn.addEventListener('click', useSkip);
 
-            powerUp5050Btn.addEventListener('click', use5050);
-            powerUpSkipBtn.addEventListener('click', useSkip);
+            // --- Game Logic ---
 
-            // --- 6. Game Functions ---
-
-            /**
-             * Spins the wheel
-             */
             function spinWheel() {
-                if (isSpinning) return;
-                isSpinning = true;
-
-                const newRotation = currentRotation + (360 * 8) + Math.random() * 360;
+                initAudio(); // Ensure audio is ready
+                spinButton.disabled = true;
                 
-                // Wheel tick sound
-                const tickInterval = 50; // ms
-                const spinDuration = 5000; // ms, must match CSS
-                let ticks = spinDuration / tickInterval;
-                const ticker = setInterval(() => {
-                    playSound('tick');
-                    ticks--;
-                    if (ticks <= 0) clearInterval(ticker);
-                }, tickInterval);
-
-                wheel.style.transform = `rotate(${newRotation}deg)`;
-
+                // Calculate new rotation
+                const spinDegrees = Math.floor(Math.random() * 360) + 360 * 5; // Spin at least 5 times
+                currentRotation += spinDegrees;
+                
+                wheel.style.transform = `rotate(${currentRotation}deg)`;
+                
+                // Play tick sound during spin
+                const spinDuration = 5000; // 5 seconds (matches CSS)
+                const ticks = 40; // Number of ticks
+                for (let i = 0; i < ticks; i++) {
+                    setTimeout(tickSound, (i * spinDuration) / ticks);
+                }
+                
+                // Determine result after spin
                 setTimeout(() => {
-                    isSpinning = false;
-                    currentRotation = newRotation;
+                    const actualRotation = (currentRotation - 45) % 360; // Offset by 45deg so 0 is top-middle of a quadrant
                     
-                    const actualRotation = newRotation % 360;
                     let category;
                     
-                    // New Spin Logic:
-                    // Pointer is at 0 degrees (top).
-                    // Sports (white): 320 (-40) to 40. (80 deg)
-                    // Culture (black): 40 to 140. (100 deg)
-                    // News (white): 140 to 220. (80 deg)
-                    // Opinion (black): 220 to 320. (100 deg)
+                    // Spin Logic: Pointer is at 0 degrees (top).
+                    // We offset by 45deg.
+                    // Rotated 0-90: Sports (was 90-180)
+                    // Rotated 90-180: Culture (was 270-360)
+                    // Rotated 180-270: News (was 180-270)
+                    // Rotated 270-360: Opinion (was 0-90)
                     
-                    if (actualRotation >= 320 || actualRotation < 40) {
-                        category = 'Sports';
-                    } else if (actualRotation >= 40 && actualRotation < 140) {
-                        category = 'Culture'; 
-                    } else if (actualRotation >= 140 && actualRotation < 220) {
+                    if (actualRotation >= 0 && actualRotation < 90) {
+                        category = 'Sports'; 
+                    } else if (actualRotation >= 90 && actualRotation < 180) {
+                        category = 'Culture';
+                    } else if (actualRotation >= 180 && actualRotation < 270) {
                         category = 'News';
-                    } else { // 220 to 320
+                    } else { // 270-360
                         category = 'Opinion';
                     }
                     
                     presentQuestion(category);
-
-                }, 5000); 
+                    spinButton.disabled = false;
+                }, 5000); // Wait for CSS transition to end
             }
 
-            /**
-             * Finds and displays a new question
-             */
             function presentQuestion(category) {
-                wheelView.classList.add('hidden');
-                questionView.classList.remove('hidden');
+                // Get a random question from the category
+                const categoryQuestions = questions[category];
+                const qIndex = Math.floor(Math.random() * categoryQuestions.length);
+                currentQuestion = categoryQuestions[qIndex];
+                
+                // Remove this question from the bank to avoid repeats (optional, but good)
+                // For a real game, you'd want to handle running out of questions
+                // questions[category].splice(qIndex, 1); 
 
-                const categoryQuestions = allQuestions[category];
+                questionCategory.textContent = category;
+                questionText.textContent = currentQuestion.q;
                 
-                if (questionTracker[category].length === categoryQuestions.length) {
-                    questionTracker[category] = [];
-                }
-
-                let questionIndex = -1;
-                do {
-                    questionIndex = Math.floor(Math.random() * categoryQuestions.length);
-                } while (questionTracker[category].includes(questionIndex));
+                // Shuffle answers
+                const answers = [...currentQuestion.a].sort(() => Math.random() - 0.5);
                 
-                questionTracker[category].push(questionIndex);
-                
-                const q = categoryQuestions[questionIndex];
-                currentQuestionData = q; // Store current question data
-                
-                showQuestion(category, q);
-            }
-
-            /**
-             * Populates the question view
-             */
-            function showQuestion(category, q) {
-                let answerLocked = false;
-                
-                questionText.textContent = '';
-                answerOptions.innerHTML = '';
-                feedback.innerHTML = '';
-                confettiContainer.innerHTML = ''; 
-                feedback.className = "mt-4 text-center text-3xl font-bold"; 
-                
-                categoryTitle.textContent = category;
-                questionText.textContent = q.q;
-
-                // Update and show power-up buttons
-                powerUp5050Btn.disabled = powerUp5050Count <= 0;
-                powerUpSkipBtn.disabled = powerUpSkipCount <= 0;
-                powerUp5050CountEl.textContent = powerUp5050Count;
-                powerUpSkipCountEl.textContent = powerUpSkipCount;
-
-                q.a.forEach((answer, index) => {
+                answersGrid.innerHTML = '';
+                answers.forEach(answer => {
                     const button = document.createElement('button');
                     button.textContent = answer;
-                    button.className = "answer-btn w-full text-left p-4 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all font-medium";
-                    button.dataset.index = index; // Store index for 50/50
+                    button.classList.add('answer-btn', 'w-full', 'bg-gray-100', 'text-gray-700', 'font-semibold', 'p-4', 'rounded-lg', 'shadow', 'text-left');
+                    button.addEventListener('click', () => checkAnswer(answer, button));
+                    answersGrid.appendChild(button);
+                });
+                
+                // Update and show powerup buttons
+                updatePowerupButtons();
+                
+                wheelView.classList.add('hidden');
+                questionView.classList.remove('hidden');
+            }
+            
+            function checkAnswer(answer, button) {
+                // Disable all buttons after an answer is chosen
+                Array.from(answersGrid.children).forEach(btn => btn.disabled = true);
+
+                if (answer === currentQuestion.a[0]) {
+                    // Correct
+                    button.classList.remove('bg-gray-100');
+                    button.classList.add('bg-green-500', 'text-white');
+                    winSound();
                     
-                    button.addEventListener('click', () => {
-                        if (answerLocked) return;
-                        answerLocked = true;
-                        
-                        if (index === q.c) {
-                            handleCorrectAnswer(button);
-                        } else {
-                            handleWrongAnswer(button);
+                    setTimeout(() => {
+                        handleCorrectAnswer();
+                    }, 1000);
+
+                } else {
+                    // Wrong
+                    button.classList.remove('bg-gray-100');
+                    button.classList.add('bg-red-500', 'text-white');
+                    loseSound();
+                    
+                    // Highlight the correct answer
+                    Array.from(answersGrid.children).forEach(btn => {
+                        if (btn.textContent === currentQuestion.a[0]) {
+                            btn.classList.remove('bg-gray-100');
+                            btn.classList.add('bg-green-500', 'text-white');
                         }
-                        
-                        setTimeout(() => {
-                            wheelView.classList.remove('hidden');
-                            questionView.classList.add('hidden');
-                        }, 2000);
                     });
-                    
-                    answerOptions.appendChild(button);
-                });
+
+                    setTimeout(() => {
+                        handleWrongAnswer();
+                    }, 2000);
+                }
             }
 
-            /**
-             * Logic for 50/50 power-up
-             */
-            function use5050() {
-                if (powerUp5050Count <= 0 || !currentQuestionData) return;
-                
-                powerUp5050Count--;
-                powerUp5050CountEl.textContent = powerUp5050Count;
-                powerUp5050Btn.disabled = true;
+            function handleCorrectAnswer() {
+                currentStreak++;
+                if (currentStreak > highestStreak) {
+                    highestStreak = currentStreak;
+                }
+                updateStreakDisplays();
 
-                const correctIndex = currentQuestionData.c;
-                let wrongIndices = [0, 1, 2, 3].filter(i => i !== correctIndex);
+                if (currentStreak === 5) {
+                    prizeText.textContent = "5-IN-A-ROW! You're a DN Master! You've definitely earned that free subscription. (secret: it's still free)";
+                    prizeModal.classList.remove('hidden');
+                    launchConfetti();
+                    prizeSound();
+                } else if (currentStreak === 3) {
+                    prizeText.textContent = "You got 3 in a row and won a free subscription to the Daily Nebraskan! (secret: it's free already)";
+                    prizeModal.classList.remove('hidden');
+                    launchConfetti();
+                    prizeSound();
+                } else {
+                    correctModal.classList.remove('hidden');
+                }
                 
-                // Randomly pick one wrong index to keep
-                const keepWrongIndex = wrongIndices.splice(Math.floor(Math.random() * wrongIndices.length), 1)[0];
-                
-                // Disable the other two wrong buttons
-                wrongIndices.forEach(indexToDisable => {
-                    const btn = answerOptions.querySelector(`[data-index="${indexToDisable}"]`);
-                    if (btn) {
-                        btn.disabled = true;
-                        btn.classList.add('opacity-50', 'bg-gray-300');
-                        btn.classList.remove('hover:bg-gray-200');
-                    }
-                });
-            }
-
-            /**
-             * Logic for Skip power-up
-             */
-            function useSkip() {
-                if (powerUpSkipCount <= 0) return;
-                
-                powerUpSkipCount--;
-                powerUpSkipCountEl.textContent = powerUpSkipCount;
-                powerUpSkipBtn.disabled = true;
-
-                // Don't count as right or wrong, just go back to wheel
-                // This preserves the streak!
-                wheelView.classList.remove('hidden');
                 questionView.classList.add('hidden');
             }
 
-
-            /**
-             * Logic for correct answer
-             */
-            function handleCorrectAnswer(buttonEl) {
-                playSound('correct');
-                buttonEl.classList.remove('bg-gray-100', 'hover:bg-gray-200');
-                buttonEl.classList.add('bg-green-500', 'text-white');
-                
-                triggerConfetti();
-                
-                currentStreak++;
-                streakCounter.textContent = currentStreak;
-                
-                if (currentStreak > highestStreak) {
-                    highestStreak = currentStreak;
-                    highestStreakCounter.textContent = highestStreak;
-                }
-                
-                // Check for win
-                if (currentStreak === 3) {
-                    playSound('win');
-                    winModalTitle.textContent = "You're a DN Expert!";
-                    winModalMessage.innerHTML = "You got 3 in a row! You win a free subscription to the Daily Nebraskan! <br> (Secret: It's free already 😉)";
-                    setTimeout(() => {
-                        winModal.classList.remove('hidden');
-                        wheelView.classList.add('hidden'); 
-                    }, 500);
-                } else if (currentStreak === 5) {
-                    playSound('win');
-                    winModalTitle.textContent = "You're a DN Master!";
-                    winModalMessage.innerHTML = "5-IN-A-ROW! You're an official trivia master. Maybe you should apply for a job? 🤔";
-                    setTimeout(() => {
-                        winModal.classList.remove('hidden');
-                        wheelView.classList.add('hidden'); 
-                    }, 500);
-                    // Reset streak after this big win
-                    currentStreak = 0;
-                    streakCounter.textContent = currentStreak;
-                }
-            }
-
-            /**
-             * Logic for wrong answer
-             */
-            function handleWrongAnswer(buttonEl) {
-                playSound('wrong');
-                buttonEl.classList.remove('bg-gray-100', 'hover:bg-gray-200');
-                buttonEl.classList.add('bg-red-500', 'text-white');
-                
-                feedback.textContent = '❌';
-                feedback.classList.add('text-red-500');
-                
-                const correctIndex = currentQuestionData.c;
-                const correctButton = answerOptions.querySelector(`[data-index="${correctIndex}"]`);
-                correctButton.classList.remove('bg-gray-100', 'hover:bg-gray-200');
-                correctButton.classList.add('bg-green-500', 'text-white');
-                
-                // Reset streak
+            function handleWrongAnswer() {
                 currentStreak = 0;
-                streakCounter.textContent = currentStreak;
+                updateStreakDisplays();
+                wrongModal.classList.remove('hidden');
+                questionView.classList.add('hidden');
             }
 
-            /**
-             * Creates confetti
-             */
-            function triggerConfetti() {
-                const colors = ['#ffffff', '#f59e0b', '#10b981', '#3b82f6', '#6366f1'];
+            function showWheelView() {
+                correctModal.classList.add('hidden');
+                wrongModal.classList.add('hidden');
+                wheelView.classList.remove('hidden');
+            }
+
+            function updateStreakDisplays() {
+                currentStreakDisplay.textContent = currentStreak;
+                highestStreakDisplay.textContent = highestStreak;
+            }
+            
+            function updatePowerupButtons() {
+                count5050.textContent = powerups[5050];
+                countSkip.textContent = powerups.skip;
+                powerup5050Btn.disabled = powerups[5050] <= 0;
+                powerupSkipBtn.disabled = powerups.skip <= 0;
+            }
+
+            function use5050() {
+                if (powerups[5050] <= 0) return;
+                powerups[5050]--;
+                updatePowerupButtons();
+                
+                const correctAnswer = currentQuestion.a[0];
+                let wrongAnswers = Array.from(answersGrid.children).filter(btn => btn.textContent !== correctAnswer);
+                
+                // Shuffle wrong answers and disable two of them
+                wrongAnswers.sort(() => Math.random() - 0.5);
+                wrongAnswers[0].disabled = true;
+                wrongAnswers[0].classList.add('opacity-30');
+                wrongAnswers[1].disabled = true;
+                wrongAnswers[1].classList.add('opacity-30');
+            }
+            
+            function useSkip() {
+                if (powerups.skip <= 0) return;
+                powerups.skip--;
+                updatePowerupButtons();
+                
+                // Don't count as right or wrong, just go back to the wheel
+                showWheelView();
+                questionView.classList.add('hidden');
+            }
+
+            // --- Confetti ---
+            function launchConfetti() {
+                const container = document.getElementById('confetti-container');
+                container.innerHTML = ''; // Clear old confetti
+                const colors = ['#c51d2c', '#ffffff', '#111827', '#fbbf24'];
+                
                 for (let i = 0; i < 50; i++) {
-                    const piece = document.createElement('div');
-                    piece.className = 'confetti-piece';
-                    piece.style.left = `${Math.random() * 100}%`;
-                    piece.style.top = `${-10 + Math.random() * 10}%`;
-                    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    piece.style.transform = `rotate(${Math.random() * 360}deg)`;
-                    piece.style.animationDelay = `${Math.random() * 3}s`;
-                    confettiContainer.appendChild(piece);
-                    
-                    setTimeout(() => piece.remove(), 3000);
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = `${Math.random() * 2}s`;
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    container.appendChild(confetti);
                 }
             }
-
-            // --- 7. Initial Setup ---
-            powerUp5050CountEl.textContent = powerUp5050Count;
-            powerUpSkipCountEl.textContent = powerUpSkipCount;
-            highestStreakCounter.textContent = highestStreak;
 
         });
     </script>
 </body>
 </html>
-
-
-
 
