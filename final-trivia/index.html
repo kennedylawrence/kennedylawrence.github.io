@@ -49,33 +49,36 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform-origin: 0 0;
+            /* Updated transform-origin */
+            transform-origin: 50% 50%; 
             font-size: 1.25rem; /* 20px */
             font-weight: 700;
             text-transform: uppercase;
             color: #dc2626; /* red-600 */
             pointer-events: none;
+            /* Common transform to center the label */
+            transform: translate(-50%, -50%);
         }
 
         /* Position and rotate labels */
         /* Each label is translated out from the center and then rotated */
-        /* We move them out 90px (less than half of 300px) so they don't hit the border */
+        /* We move them out 85px so they don't hit the border */
         
-        /* Sports: At 0 deg */
+        /* Sports: At 12 o'clock */
         .label-sports {
-            transform: translate(90px, -10px) rotate(90deg);
+            transform: translate(-50%, -50%) translateY(-85px) rotate(90deg);
         }
-        /* Culture: At 90 deg */
+        /* Culture: At 3 o'clock */
         .label-culture {
-            transform: translate(10px, 90px);
+            transform: translate(-50%, -50%) translateX(85px) rotate(90deg);
         }
-        /* News: At 180 deg */
+        /* News: At 6 o'clock */
         .label-news {
-             transform: translate(-90px, 10px) rotate(-90deg);
+             transform: translate(-50%, -50%) translateY(85px) rotate(90deg);
         }
-        /* Opinion: At 270 deg */
+        /* Opinion: At 9 o'clock */
         .label-opinion {
-            transform: translate(0px, -90px) rotate(180deg);
+            transform: translate(-50%, -50%) translateX(-85px) rotate(90deg);
         }
 
         #pointer {
@@ -657,4 +660,5 @@
     </script>
 </body>
 </html>
+
 
