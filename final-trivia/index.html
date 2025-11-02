@@ -49,14 +49,13 @@
             height: 100%;
             /* Black and White Checkerboard */
             background: conic-gradient(
-                #ffffff 0deg 90deg,   /* Sports (top-right, white) */
-                #111827 90deg 180deg,  /* Opinion (top-left, black) */
-                #ffffff 180deg 270deg, /* Culture (bottom-left, white) */
-                #111827 270deg 360deg  /* News (bottom-right, black) */
+                #111827 0deg 90deg,    /* Opinion (top-left, black) */
+                #ffffff 90deg 180deg,   /* Sports (top-right, white) */
+                #111827 180deg 270deg,  /* News (bottom-right, black) */
+                #ffffff 270deg 360deg   /* Culture (bottom-left, white) */
             );
             transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1);
             border-radius: 9999px; /* full circle */
-            /* Removed the gray border */
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
@@ -312,7 +311,7 @@
                     oscillator.stop(audioContext.currentTime + 0.1);
                 };
 
-                // Win sound (correct answer) - NEW CONGRATULATORY SOUND
+                // Win sound (correct answer) - Congratulatory Arpeggio
                 winSound = () => {
                     if (!audioContext) return;
                     const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
@@ -417,7 +416,7 @@
                     { q: 'The College of Journalism and Mass Communications proposed merging which two majors?', a: ['Journalism and broadcasting', 'Journalism and advertising/public relations', 'Broadcasting and sports media', 'Advertising and sports media'] },
                     { q: 'According to Dean Shari Veil, why was the merger proposed?', a: ['To improve teaching/research metrics and increase enrollment', 'To reduce class sizes and offer electives', 'To align with national trends in journalism education', 'To save money on faculty salaries'] },
                     { q: 'Which 40-year associate professor of Broadcasting applied for the Voluntary Separation Incentive Program (VSIP)?', a: ['Rick Alloway', 'Barney McCoy', 'Shari Veil', 'Laurie Thomas Lee'] },
-                    { q: 'Which two programs in the College of Journalism have grown in recent years, with 397 and 381 students, respectively?', a: ['Advertising/public relations and sports media/communications', 'Journalism and broadcasting', 'Broadcasting and media production', 'Journalism and sports media/communications'] },
+                    { q: 'Which two programs in the College ofJjournalism have grown in recent years, with 397 and 381 students, respectively?', a: ['Advertising/public relations and sports media/communications', 'Journalism and broadcasting', 'Broadcasting and media production', 'Journalism and sports media/communications'] },
                     { q: 'What did UNL officials state was the reason for budget issues, despite the AAUP\'s report of "strong financial health"?', a: ['The university\'s income has not kept pace with rising costs and inflation', 'A 7.8% decrease in full-time instructional employees', 'The S&P Global \'AA\' bond rating was too low', 'A 53.1% increase in administrative spending'] }
                 ],
                 Opinion: [
@@ -428,18 +427,20 @@
                     { q: 'Besides being unpaid, what does the author point out as an unfair reality for student teachers?', a: ['They are actually paying tuition for credit hours to work.', 'They are not allowed to interact with parents.', 'They are required to work 12-hour days.', 'They are not allowed to use the school\'s curriculum.'] },
                     { q: 'According to the student teaching handbook, what are student teachers not required or guaranteed to receive, even while working 6-8 hours daily?', a: ['Any kind of breaks', 'A curriculum', 'A managing teacher', 'Health insurance'] },
                     { q: 'In "OPINION: Students or state," what was the purpose of ASUN Senate Resolution #5 (SR #5)?', a: ['To release a statement against "Cornhusker" being associated with the McCook ICE detention center.', 'To demand the "Cornhusker Clink" detention center be shut down.', 'To sue the state for copyright infringement of the name "Cornhuskers."', 'To request more funding from state legislators.'] },
-                    { q: 'What is the colloquial nickname for the McCook ICE detention center?', a: ['The "Cornhusker Clink"', 'The "McCook Facility"', 'The "Nebraska Detainer"', 'The "ASUN Center"'] },
+                    { q: 'What is the colloquial nickname for the McCKook ICE detention center?', a: ['The "Cornhusker Clink"', 'The "McCook Facility"', 'The "Nebraska Detainer"', 'The "ASUN Center"'] },
                     { q: 'What was the main concern expressed by senators like Reagan Choat who were worried about passing the resolution?', a: ['That there might be "blowback" or negative reactions from UNL administration or state legislators.', 'That the resolution was not strongly worded enough.', 'That the nickname "Cornhusker" was not a copyright violation.', 'That the open forum for the student body was not long enough.'] },
                     { q: 'What did Speaker Madie Beasley argue in her closing statement?', a: ['"Our duty is not to the state government. It is, and always will be, to the students."', '"Our duty is to the state government and the students equally."', '"This resolution is the best way to protect the university\'s copyright."', '"We must preserve our relationship with the Board of Governors."'] }
                 ]
             };
             
             // --- Category definitions for the wheel ---
-            // 0-90: Sports (White)
-            // 90-180: Opinion (Black)
-            // 180-270: Culture (White)
-            // 270-360: News (Black)
-            const wheelCategories = ['Sports', 'Opinion', 'Culture', 'News'];
+            // ** THIS MUST MATCH THE VISUAL LAYOUT IN THE CSS **
+            // 0-90: Opinion (Black)
+            // 90-180: Sports (White)
+            // 180-270: News (Black)
+            // 270-360: Culture (White)
+            // Corrected logical order to match the visual wheel quadrants
+            const wheelCategories = ['Opinion', 'Sports', 'News', 'Culture'];
 
             // --- DOM Elements ---
             const wheelView = document.getElementById('wheel-view');
@@ -508,10 +509,10 @@
                     const finalAngle = currentRotation % 360;
 
                     // The wheel is laid out in 90-degree quadrants.
-                    // 0-90: Sports
-                    // 90-180: Opinion
-                    // 180-270: Culture
-                    // 270-360: News
+                    // 0-90: Opinion
+                    // 90-180: Sports
+                    // 180-270: News
+                    // 270-360: Culture
                     
                     // The pointer is at the top (0 degrees). A rotation of X degrees
                     // moves the X-degree mark to the top.
