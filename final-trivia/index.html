@@ -47,12 +47,18 @@
         #wheel {
             width: 100%;
             height: 100%;
-            /* Black and White Checkerboard */
+            /* Corrected Conic Gradient Layout:
+              0deg is at the TOP (12 o'clock).
+              - Sports (top-right): 0deg to 90deg (WHITE)
+              - News (bottom-right): 90deg to 180deg (BLACK)
+              - Culture (bottom-left): 180deg to 270deg (WHITE)
+              - Opinion (top-left): 270deg to 360deg (BLACK)
+            */
             background: conic-gradient(
-                #111827 0deg 90deg,    /* Opinion (top-left, black) */
-                #ffffff 90deg 180deg,   /* Sports (top-right, white) */
-                #111827 180deg 270deg,  /* News (bottom-right, black) */
-                #ffffff 270deg 360deg   /* Culture (bottom-left, white) */
+                #ffffff 0deg 90deg,     /* Sports (top-right, white) */
+                #111827 90deg 180deg,    /* News (bottom-right, black) */
+                #ffffff 180deg 270deg,   /* Culture (bottom-left, white) */
+                #111827 270deg 360deg    /* Opinion (top-left, black) */
             );
             transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1);
             border-radius: 9999px; /* full circle */
@@ -93,28 +99,28 @@
             box-sizing: border-box; /* Include padding in width/height */
         }
         
-        /* Sports: Top-Right (90-180 deg) */
+        /* Sports: Top-Right (0-90 deg) */
         #label-sports {
             top: 0;
             right: 0;
             transform: rotate(45deg) translateY(-25%) scale(0.9);
         }
         
-        /* Opinion: Top-Left (0-90 deg) */
+        /* Opinion: Top-Left (270-360 deg) */
         #label-opinion {
             top: 0;
             left: 0;
             transform: rotate(315deg) translateY(-25%) scale(0.9);
         }
 
-        /* Culture: Bottom-Left (270-360 deg) */
+        /* Culture: Bottom-Left (180-270 deg) */
         #label-culture {
             bottom: 0;
             left: 0;
             transform: rotate(225deg) translateY(-25%) scale(0.9);
         }
         
-        /* News: Bottom-Right (180-270 deg) */
+        /* News: Bottom-Right (90-180 deg) */
         #label-news {
             bottom: 0;
             right: 0;
@@ -437,11 +443,11 @@
             // --- Category definitions for the wheel ---
             // ** THIS IS THE CRITICAL FIX **
             // This array MUST match the visual layout in the CSS, clockwise from 0 degrees.
-            // 0-90 (Top-Left): Opinion
-            // 90-180 (Top-Right): Sports
-            // 180-270 (Bottom-Right): News
-            // 270-360 (Bottom-Left): Culture
-            const wheelCategories = ['Opinion', 'Sports', 'News', 'Culture'];
+            // 0-90 (Top-Right): Sports
+            // 90-180 (Bottom-Right): News
+            // 180-270 (Bottom-Left): Culture
+            // 270-360 (Top-Left): Opinion
+            const wheelCategories = ['Sports', 'News', 'Culture', 'Opinion'];
 
             // --- DOM Elements ---
             const wheelView = document.getElementById('wheel-view');
@@ -510,10 +516,10 @@
                     const finalAngle = currentRotation % 360;
 
                     // The wheel is laid out in 90-degree quadrants.
-                    // 0-90: Opinion
-                    // 90-180: Sports
-                    // 180-270: News
-                    // 270-360: Culture
+                    // 0-90: Sports
+                    // 90-180: News
+                    // 180-270: Culture
+                    // 270-360: Opinion
                     
                     // The pointer is at the top (0 degrees). A rotation of X degrees
                     // moves the X-degree mark to the top.
