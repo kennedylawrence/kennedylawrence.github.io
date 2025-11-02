@@ -277,15 +277,20 @@
         <!-- Prize Modal -->
         <div id="prize-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div class="bg-white text-gray-800 rounded-lg shadow-2xl p-8 text-center max-w-md w-full relative overflow-hidden">
-                <div id="confetti-container" class="absolute inset-0"></div>
-                <div class="text-7xl mb-4">🏆</div>
-                <h2 class="font-headline text-3xl mb-4 text-dn-red">YOU'RE A WINNER!</h2>
-                <p id="prize-text" class="text-gray-700 text-lg mb-6">
-                    You got 3 in a row and won a free subscription to the Daily Nebraskan! (secret: it's free already)
-                </p>
-                <button id="claim-prize-btn" class="w-full bg-dn-red text-white font-bold py-3 px-6 rounded-full text-lg transition hover:bg-red-700">
-                    Keep Playing!
-                </button>
+                <!-- Confetti is on a lower z-index -->
+                <div id="confetti-container" class="absolute inset-0 z-0"></div>
+                
+                <!-- Content is on a higher z-index -->
+                <div class="relative z-10">
+                    <div class="text-7xl mb-4">🏆</div>
+                    <h2 class="font-headline text-3xl mb-4 text-dn-red">YOU'RE A WINNER!</h2>
+                    <p id="prize-text" class="text-gray-700 text-lg mb-6">
+                        You got 3 in a row and won a free subscription to the Daily Nebraskan! (secret: it's free already)
+                    </p>
+                    <button id="claim-prize-btn" class="w-full bg-dn-red text-white font-bold py-3 px-6 rounded-full text-lg transition hover:bg-red-700">
+                        Keep Playing!
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -429,7 +434,7 @@
                 Opinion: [
                     { q: 'In "OPINION: Gen Z is weird about age," what "syndrome" does the author suggest Gen Z may suffer from due to feeling behind in life?', a: ['Peter Pan syndrome', 'Imposter syndrome', 'HustleTok syndrome', 'Soft life syndrome'] },
                     { q: 'According to the NBC News survey cited, what did men who voted for Donald Trump rank as their number one factor for personal success?', a: ['Having children', 'Having a fulfilling career', 'Achieving financial independence', 'Marriage'] },
-                    { q: 'The author defines the "soft life" as a social media term that promotes what?', a: ['Relaxation, low stress, and refraining from nightlife', 'Getting married young and having children', 'Achieving financial independence through "HustleTok"', 'Curating a highlight reel of life to appear successful'] },
+                    { q: 'The author defines the "soft life" as a social media term that promotes what?', a: ['Relaxation, low stress, and refraining from nightlife', 'Getting married young and having children', 'Achieving financial independence through "HustLLEeTok"', 'Curating a highlight reel of life to appear successful'] },
                     { q: 'What is the main argument of the opinion piece "Student teachers should be paid for their labor"?', a: ['Student teachers should be paid because they are contributing meaningful labor.', 'Student teachers should receive more experience to justify not being paid.', 'Student teachers should not have to update portfolios or write lesson plans.', 'Student teachers should only work part-time jobs while teaching.'] },
                     { q: 'Besides being unpaid, what does the author point out as an unfair reality for student teachers?', a: ['They are actually paying tuition for credit hours to work.', 'They are not allowed to interact with parents.', 'They are required to work 12-hour days.', 'They are not allowed to use the school\'s curriculum.'] },
                     { q: 'According to the student teaching handbook, what are student teachers not required or guaranteed to receive, even while working 6-8 hours daily?', a: ['Any kind of breaks', 'A curriculum', 'A managing teacher', 'Health insurance'] },
