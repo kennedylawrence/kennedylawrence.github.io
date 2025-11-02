@@ -59,6 +59,7 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
+            /* No gray border */
         }
         
         /* Red Pointer */
@@ -92,28 +93,28 @@
             box-sizing: border-box; /* Include padding in width/height */
         }
         
-        /* Sports: Top-Right */
+        /* Sports: Top-Right (90-180 deg) */
         #label-sports {
             top: 0;
             right: 0;
             transform: rotate(45deg) translateY(-25%) scale(0.9);
         }
         
-        /* Opinion: Top-Left */
+        /* Opinion: Top-Left (0-90 deg) */
         #label-opinion {
             top: 0;
             left: 0;
             transform: rotate(315deg) translateY(-25%) scale(0.9);
         }
 
-        /* Culture: Bottom-Left */
+        /* Culture: Bottom-Left (270-360 deg) */
         #label-culture {
             bottom: 0;
             left: 0;
             transform: rotate(225deg) translateY(-25%) scale(0.9);
         }
         
-        /* News: Bottom-Right */
+        /* News: Bottom-Right (180-270 deg) */
         #label-news {
             bottom: 0;
             right: 0;
@@ -414,7 +415,7 @@
                     { q: 'A Flatwater Free Press report found that NU now spends more on what than it does on professors?', a: ['Administrators', 'Student services', 'Athletics', 'Building maintenance'] },
                     { q: 'According to the report examining NU\'s spending shifts, instructional expenditures rose by 30.3% between 2016 and 2026, while administrative spending increased by how much?', a: ['53.1%', '7.6%', '31.7%', '74%'] },
                     { q: 'The College of Journalism and Mass Communications proposed merging which two majors?', a: ['Journalism and broadcasting', 'Journalism and advertising/public relations', 'Broadcasting and sports media', 'Advertising and sports media'] },
-                    { q: 'According to Dean Shari Veil, why was the merger proposed?', a: ['To improve teaching/research metrics and increase enrollment', 'To reduce class sizes and offer electives', 'To align with national trends in journalism education', 'To save money on faculty salaries'] },
+                    { q: 'According to Dean Shari Veil, why was the merger proposed?', a: ['To improve teaching/research metrics and increase enrollment', 'To reduce class sizes and offer more electives', 'To align with national trends in journalism education', 'To save money on faculty salaries'] },
                     { q: 'Which 40-year associate professor of Broadcasting applied for the Voluntary Separation Incentive Program (VSIP)?', a: ['Rick Alloway', 'Barney McCoy', 'Shari Veil', 'Laurie Thomas Lee'] },
                     { q: 'Which two programs in the College ofJjournalism have grown in recent years, with 397 and 381 students, respectively?', a: ['Advertising/public relations and sports media/communications', 'Journalism and broadcasting', 'Broadcasting and media production', 'Journalism and sports media/communications'] },
                     { q: 'What did UNL officials state was the reason for budget issues, despite the AAUP\'s report of "strong financial health"?', a: ['The university\'s income has not kept pace with rising costs and inflation', 'A 7.8% decrease in full-time instructional employees', 'The S&P Global \'AA\' bond rating was too low', 'A 53.1% increase in administrative spending'] }
@@ -426,7 +427,7 @@
                     { q: 'What is the main argument of the opinion piece "Student teachers should be paid for their labor"?', a: ['Student teachers should be paid because they are contributing meaningful labor.', 'Student teachers should receive more experience to justify not being paid.', 'Student teachers should not have to update portfolios or write lesson plans.', 'Student teachers should only work part-time jobs while teaching.'] },
                     { q: 'Besides being unpaid, what does the author point out as an unfair reality for student teachers?', a: ['They are actually paying tuition for credit hours to work.', 'They are not allowed to interact with parents.', 'They are required to work 12-hour days.', 'They are not allowed to use the school\'s curriculum.'] },
                     { q: 'According to the student teaching handbook, what are student teachers not required or guaranteed to receive, even while working 6-8 hours daily?', a: ['Any kind of breaks', 'A curriculum', 'A managing teacher', 'Health insurance'] },
-                    { q: 'In "OPINION: Students or state," what was the purpose of ASUN Senate Resolution #5 (SR #5)?', a: ['To release a statement against "Cornhusker" being associated with the McCook ICE detention center.', 'To demand the "Cornhusker Clink" detention center be shut down.', 'To sue the state for copyright infringement of the name "Cornhuskers."', 'To request more funding from state legislators.'] },
+                    { q: 'In "OPINION: Students or state," what was the purpose of ASUN Senate Resolution #5 (SR #5)?', a: ['To release a statement against "Cornhusker" being associated with the McCook ICE detention center.', 'To demand the "Cornhusker Clink" detention center be shut down.', 'To sue the. state for copyright infringement of the name "Cornhuskers."', 'To request more funding from state legislators.'] },
                     { q: 'What is the colloquial nickname for the McCKook ICE detention center?', a: ['The "Cornhusker Clink"', 'The "McCook Facility"', 'The "Nebraska Detainer"', 'The "ASUN Center"'] },
                     { q: 'What was the main concern expressed by senators like Reagan Choat who were worried about passing the resolution?', a: ['That there might be "blowback" or negative reactions from UNL administration or state legislators.', 'That the resolution was not strongly worded enough.', 'That the nickname "Cornhusker" was not a copyright violation.', 'That the open forum for the student body was not long enough.'] },
                     { q: 'What did Speaker Madie Beasley argue in her closing statement?', a: ['"Our duty is not to the state government. It is, and always will be, to the students."', '"Our duty is to the state government and the students equally."', '"This resolution is the best way to protect the university\'s copyright."', '"We must preserve our relationship with the Board of Governors."'] }
@@ -434,12 +435,12 @@
             };
             
             // --- Category definitions for the wheel ---
-            // ** THIS MUST MATCH THE VISUAL LAYOUT IN THE CSS **
-            // 0-90: Opinion (Black)
-            // 90-180: Sports (White)
-            // 180-270: News (Black)
-            // 270-360: Culture (White)
-            // Corrected logical order to match the visual wheel quadrants
+            // ** THIS IS THE CRITICAL FIX **
+            // This array MUST match the visual layout in the CSS, clockwise from 0 degrees.
+            // 0-90 (Top-Left): Opinion
+            // 90-180 (Top-Right): Sports
+            // 180-270 (Bottom-Right): News
+            // 270-360 (Bottom-Left): Culture
             const wheelCategories = ['Opinion', 'Sports', 'News', 'Culture'];
 
             // --- DOM Elements ---
