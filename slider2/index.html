@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNL School of Music Comparison</title>
+    
+    <style>
+        /* Basic page styling */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h2 {
+            font-weight: 600;
+            color: #222;
+        }
+
+        p {
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* The main comparison container */
+        .img-comp-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px; /* Adjust max-width as needed */
+            margin: 0 auto;
+            overflow: hidden; /* Hide parts of the top image */
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Base image (2014) - This sets the container's aspect ratio */
+        .img-comp-container .img-base {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        /* Overlay container (2025) - This is what gets resized */
+        .img-comp-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%; /* Initial state: 50% revealed */
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Top image (2025) - Sits inside the overlay container */
+        .img-comp-overlay .img-top {
+            display: block;
+            width: 100%; /* Matches the base image width */
+            height: auto;
+            /* This is the key: we set the width in JS to match the base image's width */
+            /* This ensures the image isn't "squished" as the overlay div resizes. */
+        }
+
+        /* The slider handle */
+        .img-comp-slider {
+            position: absolute;
+            z-index: 10;
+            cursor: col-resize;
+            /* The vertical line */
+            width: 4px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            top: 0;
+            bottom: 0;
+            left: 50%; /* Initial state: 50% */
+            transform: translateX(-2px); /* Centers the 4px line */
+        }
+
+        /* The circular grabber on the handle */
+        .img-comp-slider:before {
+            content: '';
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: white;
+            border: 3px solid #ddd;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            /* Embedded SVG for the left/right arrows */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l-5-5 5-5M14 7l5 5-5 5"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        /* Add labels for context */
+        .img-comp-label {
+            position: absolute;
+            top: 10px;
+            padding: 5px 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-weight: bold;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            pointer-events: none; /* Make text non-interactive */
+        }
+        
+        .label-before {
+            left: 10px;
+        }
+
+        .label-after {
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Check out the changes to UNL's School of Music from 2014 to 2025</h2>
+    <p>Click and drag (or tap and drag) the slider to compare the images.</p>
+
+    <div class="img-comp-container" id="img-comp-container">
+        
+        <img src="campusoctober2014.jpg" class="img-base" alt="UNL School of Music area in October 2014">
+        
+        <div class="img-comp-overlay" id="img-overlay">
+            <img src="campusmarch2025.jpg" class="img-top" alt="UNL School of Music area in March 2025">
+            <div class="img-comp-label label-after">2025</div>
+        </div>
+
+        <div class="img-comp-label label-before">2014</div>
+        
+        <div class="img-comp-slider" id="img-slider"></div>
+    </div>
+
+    <script>
+        // Wait for the DOM to be ready before running the script
+        document.addEventListener("DOMContentLoaded", function() {
+            initImageCompare();
+        });
+
+        function initImageCompare() {
+            // Get all the necessary elements
+            const container = document.getElementById("img-comp-container");
+            if (!container) return; // Exit if container not found
+
+            const overlay = document.getElementById("img-overlay");
+            const slider = document.getElementById("img-slider");
+            const baseImg = container.querySelector(".img-base");
+            const topImg = container.querySelector(".img-top");
+
+            // Variable to track if we are sliding
+            let isSliding = false;
+
+            // Function to set the width of the top image
+            // This ensures the top image is never "squished"
+            function setTopImageWidth() {
+                const containerWidth = baseImg.offsetWidth;
+                topImg.style.width = containerWidth + "px";
+            }
+
+            // Set the width on load
+            setTopImageWidth();
+            // And reset it on window resize
+            window.addEventListener("resize", setTopImageWidth);
+
+            // --- Event Listeners for Sliding ---
+
+            // 1. Mouse down or Touch start on the slider
+            slider.addEventListener("mousedown", startSlide);
+            slider.addEventListener("touchstart", startSlide, { passive: false }); // passive:false to allow preventDefault
+
+            // 2. Mouse up or Touch end anywhere on the page
+            window.addEventListener("mouseup", endSlide);
+            window.addEventListener("touchend", endSlide);
+
+            function startSlide(e) {
+                e.preventDefault(); // Prevent default image drag
+                isSliding = true;
+                // Listen for movement
+                window.addEventListener("mousemove", slideMove);
+                window.addEventListener("touchmove", slideMove, { passive: false });
+            }
+
+            function endSlide() {
+                isSliding = false;
+                // Stop listening for movement
+                window.removeEventListener("mousemove", slideMove);
+                window.removeEventListener("touchmove", slideMove);
+            }
+
+            function slideMove(e) {
+                if (!isSliding) return;
+                
+                // Get the horizontal position of the cursor/touch
+                const xPos = getCursorX(e);
+
+                // Get the position of the container relative to the viewport
+                const containerRect = container.getBoundingClientRect();
+                const containerWidth = containerRect.width;
+
+                // Calculate the new X position relative to the container
+                let newX = xPos - containerRect.left;
+
+                // --- Boundary Check ---
+                // Keep the slider within the container
+                if (newX < 0) {
+                    newX = 0;
+                }
+                if (newX > containerWidth) {
+                    newX = containerWidth;
+                }
+
+                // Apply the new position
+                updateSliderPosition(newX);
+            }
+
+            function getCursorX(e) {
+                // Handle both mouse and touch events
+                if (e.changedTouches) {
+                    return e.changedTouches[0].pageX;
+                }
+                return e.pageX;
+            }
+
+            function updateSliderPosition(x) {
+                // Resize the overlay
+                overlay.style.width = x + "px";
+                // Move the slider handle
+                slider.style.left = x + "px";
+            }
+        }
+    </script>
+
+</body>
+</html>
