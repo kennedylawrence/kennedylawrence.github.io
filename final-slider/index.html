@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNL Temple Building Comparison</title>
+    
+    <style>
+        /* Basic page styling */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Wrapper for the whole component */
+        .slider-wrapper {
+            width: 100%;
+            max-width: 800px; /* Adjust max-width as needed */
+            margin: 2rem auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        /* Header and instruction styling */
+        .slider-header {
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        .slider-header h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+            color: #111;
+        }
+        .slider-header p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        /* The main comparison container */
+        .comparison-container {
+            position: relative;
+            width: 100%;
+            /* The aspect-ratio is controlled by the images themselves */
+            overflow: hidden; /* Important for keeping images contained */
+            cursor: ew-resize; /* Cursor shows horizontal resizing */
+        }
+
+        /* Styling for both images */
+        .comparison-container img {
+            display: block;
+            width: 100%;
+            height: auto;
+            pointer-events: none; /* Prevents image dragging */
+        }
+
+        /* The "before" image (top layer) */
+        .image-before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            object-fit: cover; /* Ensures image covers, even if aspect ratios are slightly off */
+            
+            /* This is the magic! We clip the image by default at 50% */
+            clip-path: polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%);
+        }
+
+        /* The slider handle container */
+        .slider-handle {
+            position: absolute;
+            top: 0;
+            left: 50%; /* Starts in the middle */
+            height: 100%;
+            width: 40px; /* Makes it easy to grab/touch */
+            
+            /* Center the handle visuals within this touchable area */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            /* Move the 40px-wide handle back by 20px to center it on the line */
+            transform: translateX(-50%);
+            
+            /* We don't want the handle to block the 'ew-resize' cursor from the container */
+            pointer-events: none;
+        }
+
+        /* The visual vertical line */
+        .slider-line {
+            position: absolute;
+            width: 4px;
+            height: 100%;
