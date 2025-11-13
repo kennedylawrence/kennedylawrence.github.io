@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-R-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UNL Temple Building Comparison</title>
     
@@ -22,7 +22,7 @@
         /* Wrapper for the whole component */
         .slider-wrapper {
             width: 100%;
-            max-width: 800px; /* Adjust max-width as needed */
+            max-width: 800px; /* You can adjust this */
             margin: 2rem auto;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
@@ -50,8 +50,8 @@
         .comparison-container {
             position: relative;
             width: 100%;
-            /* The aspect-ratio is controlled by the images themselves */
-            overflow: hidden; /* Important for keeping images contained */
+            /* The container's aspect ratio will be set by the 'after' image */
+            overflow: hidden;
             cursor: ew-resize; /* Cursor shows horizontal resizing */
         }
 
@@ -60,7 +60,7 @@
             display: block;
             width: 100%;
             height: auto;
-            pointer-events: none; /* Prevents image dragging */
+            pointer-events: none; /* Prevents image ghost-dragging */
         }
 
         /* The "before" image (top layer) */
@@ -68,12 +68,18 @@
             position: absolute;
             top: 0;
             left: 0;
-            height: 100%;
+            height: 100%; /* Force it to match the 'after' image's height */
             width: 100%;
-            object-fit: cover; /* Ensures image covers, even if aspect ratios are slightly off */
+            object-fit: cover; /* This will crop the image to fit, see note below */
             
-            /* This is the magic! We clip the image by default at 50% */
+            /* The slider starts in the middle (50%) */
             clip-path: polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%);
+        }
+        
+        /* The "after" image (bottom layer) */
+        .image-after {
+            /* This image defines the container size */
+            object-fit: cover; 
         }
 
         /* The slider handle container */
@@ -82,17 +88,17 @@
             top: 0;
             left: 50%; /* Starts in the middle */
             height: 100%;
-            width: 40px; /* Makes it easy to grab/touch */
+            width: 40px; /* Wider for easier touch interaction */
             
-            /* Center the handle visuals within this touchable area */
+            /* Center the handle visuals */
             display: flex;
             align-items: center;
             justify-content: center;
             
-            /* Move the 40px-wide handle back by 20px to center it on the line */
+            /* Nudge the 40px handle back by 20px to center it on the 50% line */
             transform: translateX(-50%);
             
-            /* We don't want the handle to block the 'ew-resize' cursor from the container */
+            /* Allows the 'ew-resize' cursor to show through */
             pointer-events: none;
         }
 
@@ -101,3 +107,131 @@
             position: absolute;
             width: 4px;
             height: 100%;
+            background: #ffffff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        /* The visual circle icon with arrows */
+        .slider-icon {
+            width: 40px;
+            height: 40px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            color: #333;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="slider-wrapper">
+        
+        <div class="slider-header">
+            <h2>Check out the changes to UNL's Temple Building from the 1920s to 2025</h2>
+            <p>Click and drag (or swipe) the slider to reveal the changes.</p>
+        </div>
+
+        <div class="comparison-container" id="comparison-container">
+            
+            <img src="IMG_6370.jpeg" alt="UNL Temple Building 2025" class="image-after">
+            
+            <img src="58.jpg" alt="UNL Temple Building 1920s" class="image-before" id="image-before">
+
+            <div class="slider-handle" id="slider-handle">
+                <div class="slider-line"></div>
+                <div class="slider-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Wait for the DOM to be fully loaded before running the script
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Select the necessary elements from the DOM
+            const container = document.getElementById('comparison-container');
+            const imageBefore = document.getElementById('image-before');
+            const sliderHandle = document.getElementById('slider-handle');
+
+            // This flag will track if we are actively sliding
+            let isSliding = false;
+
+            // --- Function to update slider position ---
+            // This is the core logic that moves the images and handle
+            function updateSliderPosition(clientX) {
+                // Get the container's position and size on the page
+                const rect = container.getBoundingClientRect();
+                
+                // Calculate the horizontal position (x) of the cursor relative to the container
+                let x = clientX - rect.left;
+                
+                // Clamp the value between 0 and the container's width
+                x = Math.max(0, Math.min(x, rect.width));
+                
+                // Convert the pixel value to a percentage
+                const percentage = (x / rect.width) * 100;
+                
+                // Update the CSS
+                // 1. Move the handle
+                sliderHandle.style.left = percentage + '%';
+                
+                // 2. Update the clip-path of the "before" image
+                imageBefore.style.clipPath = `polygon(0% 0%, ${percentage}% 0%, ${percentage}% 100%, 0% 100%)`;
+            }
+
+            // --- Event Listeners for Desktop (Mouse) ---
+
+            // Event: Mouse button is pressed down
+            container.addEventListener('mousedown', function(e) {
+                e.preventDefault(); // Prevent default browser behavior (like image dragging)
+                isSliding = true; 
+            });
+
+            // Event: Mouse is released (anywhere on the page)
+            document.addEventListener('mouseup', function() {
+                isSliding = false; 
+            });
+
+            // Event: Mouse is moved (anywhere on the page)
+            document.addEventListener('mousemove', function(e) {
+                if (!isSliding) return; // Only run if we are actively sliding
+                updateSliderPosition(e.clientX);
+            });
+
+            // --- Event Listeners for Mobile (Touch) ---
+
+            // Event: Finger touches the screen
+            container.addEventListener('touchstart', function(e) {
+                isSliding = true; 
+            });
+
+            // Event: Finger is lifted from the screen
+            document.addEventListener('touchend', function() {
+                isSliding = false; 
+            });
+
+            // Event: Finger is moved across the screen
+            document.addEventListener('touchmove', function(e) {
+                if (!isSliding) return; // Only run if we are sliding
+                
+                // For touch events, we get the position from the 'touches' array
+                if (e.touches && e.touches.length > 0) {
+                    updateSliderPosition(e.touches[0].clientX);
+                }
+            });
+
+        });
+    </script>
+
+</body>
+</html>
